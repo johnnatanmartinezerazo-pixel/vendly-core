@@ -1,0 +1,14 @@
+pub mod test_auth_type;
+pub mod test_consent_type;
+pub mod test_email;
+pub mod test_external_id;
+pub mod test_gender;
+pub mod test_locale;
+pub mod test_phone;
+pub mod test_role_name;
+pub mod test_subscription_status;
+pub mod test_subscription_tier;
+pub mod test_timezone;
+pub mod test_user_status;
+pub mod test_username;
+pub mod test_validation_error;

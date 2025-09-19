@@ -1,0 +1,143 @@
+{
+  // 🎨 Apariencia
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.colorTheme": "One Dark Pro Darker",
+
+  // 🔀 Git
+  "git.enableSmartCommit": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.openRepositoryInParentFolders": "never",
+
+  // 🗂️ Explorador
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+
+  // 📁 Asociaciones de carpetas para arquitectura hexagonal
+  "material-icon-theme.folders.associations": {
+    "domain": "base",
+    "application": "api",
+    "infrastructure": "server",
+    "http": "vm",
+  },
+  "material-icon-theme.folders.color": "#ef5350",
+  // 📄 Colores e iconos personalizados para archivos Rust
+  "material-icon-theme.files.customClones": [
+    // ---- Base del proyecto ----
+    {
+      "name": "rust-mod",
+      "base": "rust",
+      "color": "blue-400",
+      "lightColor": "blue-600",
+      "fileNames": ["mod.rs"],
+    },
+    {
+      "name": "rust-lib",
+      "base": "rust",
+      "color": "purple-400",
+      "lightColor": "purple-600",
+      "fileNames": ["lib.rs"],
+    },
+    {
+      "name": "rust-main",
+      "base": "rust",
+      "color": "green-400",
+      "lightColor": "green-600",
+      "fileNames": ["main.rs"],
+    },
+  ],
+  "material-icon-theme.folders.customClones": [
+    {
+      "name": "user",
+      "base": "admin",
+      "color": "teal-400",
+      "lightColor": "teal-600",
+      "folderNames": ["user"],
+    },
+    {
+      "name": "company",
+      "base": "home",
+      "color": "orange-400",
+      "lightColor": "orange-600",
+      "folderNames": ["company"],
+    },
+    {
+      "name": "customer",
+      "base": "admin",
+      "color": "purple-400",
+      "lightColor": "purple-600",
+      "folderNames": ["customer"],
+    },
+    {
+      "name": "supplier",
+      "base": "admin",
+      "color": "lime-400",
+      "lightColor": "lime-600",
+      "folderNames": ["supplier"],
+    },
+    {
+      "name": "item",
+      "base": "rules",
+      "color": "amber-400",
+      "lightColor": "amber-600",
+      "folderNames": ["item"],
+    },
+    {
+      "name": "vo",
+      "base": "constant",
+      "color": "cyan-400",
+      "lightColor": "cyan-600",
+      "folderNames": ["vo"],
+    },
+    {
+      "name": "entities",
+      "base": "components",
+      "color": "indigo-400",
+      "lightColor": "indigo-600",
+      "folderNames": ["entities"],
+    },
+    {
+      "name": "aggregates",
+      "base": "connection",
+      "color": "blue-400",
+      "lightColor": "blue-600",
+      "folderNames": ["aggregates"],
+    },
+    {
+      "name": "services_impl",
+      "base": "controller",
+      "color": "blue-400",
+      "lightColor": "blue-600",
+      "folderNames": ["services_impl"],
+    },
+    {
+      "name": "persistence",
+      "base": "database",
+      "color": "green-400",
+      "lightColor": "green-600",
+      "folderNames": ["persistence"],
+    },
+    {
+      "name": "migrations",
+      "base": "generator",
+      "color": "purple-400",
+      "lightColor": "purple-600",
+      "folderNames": ["migrations"],
+    },
+    {
+      "name": "orm",
+      "base": "context",
+      "color": "indigo-400",
+      "lightColor": "indigo-600",
+      "folderNames": ["orm"],
+    },
+    {
+      "name": "odm",
+      "base": "json",
+      "color": "cyan-400",
+      "lightColor": "cyan-600",
+      "folderNames": ["odm"],
+    },
+  ],
+  "material-icon-theme.hidesExplorerArrows": false,
+}

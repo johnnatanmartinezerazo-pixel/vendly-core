@@ -1,0 +1,33 @@
+[package]
+name = "Vendly-Core"
+version = "0.1.0"
+description = "Core library for Vendly"
+authors = ["JtMe"]
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "vendly_core"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+uuid = { version = "1.18.1", features = ["v4"] }
+regex = "1.11.2"
+anyhow = "1.0.71"
+chrono-tz = "0.10.4"
+serde_json = "1.0.145"
+chrono = "0.4.42"
+async_trait = "0.1.89"
+sea-orm = { version = "1.1.16", features = [
+    "macros",
+    "runtime-async-std-native-tls",
+    "sqlx-postgres",
+    "sqlx-mysql",
+    "sqlx-sqlite",
+    "sqlx-mssql"
+] }
+argon2 = "0.5.3"

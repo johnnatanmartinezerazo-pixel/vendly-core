@@ -1,0 +1,106 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "public",
+    "apps/**/build",
+    "apps/**/target",
+    "apps/**/gen",
+    "apps/**/capabilities",
+    "apps/**/icons",
+    "**/*.lock",
+    "**/*.log"
+  ],
+  "words": [
+    "ascii",
+    "axum",
+    "cdylib",
+    "chrono",
+    "cspell",
+    "ESLint",
+    "gdpr",
+    "icns",
+    "Jest",
+    "jsx-a11y",
+    "njsproj",
+    "ntvs",
+    "oidc",
+    "Prettier",
+    "react",
+    "react-dom",
+    "rlib",
+    "rustls",
+    "serde",
+    "serde_json",
+    "serialización",
+    "sqlx",
+    "submódulos",
+    "TailwindCSS",
+    "tauri",
+    "Tauri",
+    "tauri-plugin-clipboard",
+    "tauri-plugin-dialogs",
+    "tauri-plugin-global-shortcut",
+    "tauri-plugin-local-storage",
+    "tauri-plugin-logger",
+    "tauri-plugin-notification",
+    "tauri-plugin-opener",
+    "tauri-plugin-os",
+    "tauri-plugin-process",
+    "tauri-plugin-shell",
+    "tauri-plugin-updater",
+    "tauri-plugin-window",
+    "tokio",
+    "typescript-eslint",
+    "uuid",
+    "vendly",
+    "vite",
+    "Vite",
+    "Vitest"
+  ],
+  "ignoreWords": [
+    "node",
+    "jsonc",
+    "tsx",
+    "jsx"
+  ],
+  "language": "en,es",
+  "dictionaries": [
+    "en",
+    "es"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "es",
+      "path": "@cspell/dict-es-es/spanish.txt.gz",
+      "description": "Diccionario español"
+    }
+  ],
+  "enableFiletypes": [
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact",
+    "json",
+    "jsonc",
+    "markdown",
+    "html",
+    "css",
+    "scss",
+    "less",
+    "yaml",
+    "yml",
+    "rust"
+  ],
+  "allowCompoundWords": true,
+  "gitignoreRoot": ".",
+  "globRoot": ".",
+  "ignoreRegExpList": [
+    "/[0-9a-f]{7,}/", // hashes de git
+    "/\\b[A-Z0-9]{8,}\\b/" // strings largas tipo IDs
+  ],
+  "ignoreRandomStrings": true
+}
