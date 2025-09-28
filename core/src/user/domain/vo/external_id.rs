@@ -4,7 +4,6 @@ use std::convert::TryFrom;
 // Import ValidationError from the parent module
 use super::ValidationError;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExternalId(String);
 
 impl ExternalId {

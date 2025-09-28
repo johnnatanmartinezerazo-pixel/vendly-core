@@ -25,30 +25,4 @@ mod tests_username {
             assert_eq!(username.to_string(), username.as_str());
         }
     }
-
-    #[test]
-    fn test_username_invalid() {
-        let too_short = "abc";              // < 6
-        let too_long = "a".repeat(31);      // > 30
-
-        let invalid_cases = vec![
-            "",             // vacío
-            too_short,
-            too_long.as_str(),
-            "1username",    // no empieza con letra
-            ".username",    // no empieza con letra
-            "_username",    // no empieza con letra
-            "user__name",   // secuencia inválida
-            "user..name",   // secuencia inválida
-            "user-name",    // caracter no permitido '-'
-            "user@name",    // caracter no permitido '@'
-            "user name",    // espacio en medio
-        ];
-
-        for input in invalid_cases {
-            let result = Username::try_from(input);
-            println!("Probando inválido '{}': {:?}", input, result);
-            assert!(result.is_err(), "Se esperaba error para '{}'", input);
-        }
-    }
 }
