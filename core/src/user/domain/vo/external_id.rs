@@ -1,17 +1,10 @@
 use std::fmt;
 use std::convert::TryFrom;
 
+// Import ValidationError from the parent module
 use super::ValidationError;
 
-/// VO que representa un identificador externo de un usuario.
-/// Puede provenir de Google, Microsoft, GitHub, etc.
-///
-/// Reglas mínimas:
-/// - Opcional
-/// - Si existe, no puede estar vacío
-/// - Máximo 255 caracteres
-/// - Solo caracteres imprimibles
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExternalId(String);
 
 impl ExternalId {
@@ -20,15 +13,11 @@ impl ExternalId {
         let trimmed = value.trim();
 
         if trimmed.is_empty() {
-            return Err(ValidationError::InvalidExternalIdEmpty);
+            return Err(ValidationError::InvalidExternalId);
         }
 
         if trimmed.len() > 255 {
-            return Err(ValidationError::InvalidExternalIdLength);
-        }
-
-        if !trimmed.chars().all(|c| !c.is_control()) {
-            return Err(ValidationError::InvalidExternalIdFormat);
+            return Err(ValidationError::InvalidExternalId);
         }
 
         Ok(Self(trimmed.to_string()))

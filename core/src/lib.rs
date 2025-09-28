@@ -1,5 +1,9 @@
-extern crate core;
-extern crate proc_macro;
+//! Vendly-Core
+//! ============
+//! Librería central de dominio para la aplicación Vendly.
+//! Define entidades, value objects y reglas de negocio del contexto `User`.
 
-mod user;
+pub mod user;
+
+#[cfg(test)]
 mod tests;

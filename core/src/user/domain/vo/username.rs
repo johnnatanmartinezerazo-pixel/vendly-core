@@ -1,36 +1,29 @@
+use regex::Regex;
 use std::fmt;
 use std::convert::TryFrom;
-use regex::Regex;
+use std::sync::LazyLock;
 
 use super::ValidationError;
 
-/// VO que representa el nombre de usuario.
-/// Garantiza que sea único, válido y cumpla con las restricciones de dominio.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Username(String);
+
+static USERNAME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^(?=.{6,30}$)[a-z][a-z0-9](?:[._-]?[a-z0-9])*$").unwrap()
+});
 
 impl Username {
     /// Crea un `Username` validando reglas de negocio.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
-        let trimmed = value.trim();
-
-        // Validar longitud
-        if trimmed.len() < 6 || trimmed.len() > 30 {
-            return Err(ValidationError::InvalidUsernameLength);
-        }
+        // Normalizar: trim y lowercase
+        let trimmed = value.trim().to_lowercase();
 
         // Validar regex: debe empezar con letra, luego letras/números/._ permitidos
-        let re = Regex::new(r"^[a-zA-Z][a-zA-Z0-9._]*$").unwrap();
-        if !re.is_match(trimmed) {
-            return Err(ValidationError::InvalidUsernameFormat);
+        if !USERNAME_REGEX.is_match(&trimmed) {
+            return Err(ValidationError::InvalidUsername);
         }
 
-        // Validar que no contenga secuencias inválidas como ".." o "__"
-        if trimmed.contains("..") || trimmed.contains("__") {
-            return Err(ValidationError::InvalidUsernameFormat);
-        }
-
-        Ok(Self(trimmed.to_string()))
+        Ok(Self(trimmed))
     }
 
     /// Devuelve el username como &str.

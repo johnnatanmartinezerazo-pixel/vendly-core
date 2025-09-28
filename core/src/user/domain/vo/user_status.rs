@@ -3,9 +3,7 @@ use std::convert::TryFrom;
 
 use super::ValidationError;
 
-/// VO que representa el estado de un usuario en el sistema.
-/// Siempre limitado a valores válidos y consistentes.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UserStatus {
     Pending,
     Active,
@@ -16,11 +14,11 @@ pub enum UserStatus {
 impl UserStatus {
     /// Crea un `UserStatus` desde &str validando que sea uno de los valores permitidos.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
-        match value.trim().to_lowercase().as_str() {
-            "pending" => Ok(UserStatus::Pending),
-            "active" => Ok(UserStatus::Active),
-            "suspended" => Ok(UserStatus::Suspended),
-            "deleted" => Ok(UserStatus::Deleted),
+        match value.trim() {
+            v if v.eq_ignore_ascii_case("pending") => Ok(UserStatus::Pending),
+            v if v.eq_ignore_ascii_case("active") => Ok(UserStatus::Active),
+            v if v.eq_ignore_ascii_case("suspended") => Ok(UserStatus::Suspended),
+            v if v.eq_ignore_ascii_case("deleted") => Ok(UserStatus::Deleted),
             _ => Err(ValidationError::InvalidUserStatus),
         }
     }

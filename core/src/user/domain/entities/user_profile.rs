@@ -47,10 +47,10 @@ impl UserProfile {
         // Validación mínima de display_name
         if let Some(name) = &display_name {
             if name.trim().is_empty() {
-                return Err(ValidationError::InvalidUsernameFormat); // puedes hacer un `InvalidDisplayName`
+                return Err(ValidationError::InvalidUsername); // puedes hacer un `InvalidDisplayName`
             }
             if name.len() < 6 || name.len() > 30 {
-                return Err(ValidationError::InvalidUsernameLength);
+                return Err(ValidationError::InvalidUsername);
             }
         }
 
@@ -73,9 +73,9 @@ impl UserProfile {
     /// Actualiza el nombre para mostrar.
     pub fn update_display_name(&mut self, name: String) -> Result<(), ValidationError> {
         if name.trim().is_empty(){
-            return Err(ValidationError::InvalidUsernameFormat);
+            return Err(ValidationError::InvalidUsername);
         } else if name.len() < 6 || name.len() > 30 {
-            return Err(ValidationError::InvalidUsernameLength);
+            return Err(ValidationError::InvalidUsername);
         }
         self.display_name = Some(name);
         Ok(())

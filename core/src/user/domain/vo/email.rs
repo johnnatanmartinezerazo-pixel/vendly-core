@@ -1,34 +1,34 @@
 use regex::Regex;
 use std::fmt;
 use std::convert::TryFrom;
+use std::sync::LazyLock;
 
 use super::ValidationError;
 
-/// Value Object para Email.
-/// Inmutable, siempre válido y normalizado.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Email(String);
+
+static EMAIL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r"^[A-Za-z0-9](?:[A-Za-z0-9._-]{2,63}[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\.[A-Za-z]{2,24}$"
+    ).unwrap()
+});
 
 impl Email {
     /// Crea un nuevo Email validando y normalizando el valor recibido.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         let trimmed = value.trim().to_lowercase();
 
-        // Regla: longitud máxima 320 (RFC 3696/5321)
-        if trimmed.len() > 320 {
-            return Err(ValidationError::InvalidEmail);
+        // Longitud máxima total del email: 254 caracteres
+        if trimmed.len() > 254 {
+            return Err(ValidationError::InvalidEmailTooLong);
         }
 
-        // Regex simple para emails válidos
-        let email_regex = Regex::new(
-            r"^[A-Za-z0-9](?:[A-Za-z0-9._%+-]{0,63}[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z]{2,})+$"
-        ).unwrap();
-
-        if email_regex.is_match(&trimmed) {
-            Ok(Self(trimmed))
-        } else {
-            Err(ValidationError::InvalidEmail)
+        // Validar con regex el formato del email
+        if !EMAIL_REGEX.is_match(&trimmed) {
+            return Err(ValidationError::InvalidEmailFormat);
         }
+
+        Ok(Self(trimmed))
     }
 
     /// Devuelve el email como `&str`.
@@ -37,21 +37,18 @@ impl Email {
     }
 }
 
-/// Permite usar Email como &str (ej. en queries, logs, etc.)
 impl AsRef<str> for Email {
     fn as_ref(&self) -> &str {
         &self.0
     }
 }
 
-/// Permite mostrar el email en logs, UI, etc.
 impl fmt::Display for Email {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-/// Permite crear un Email con `Email::try_from("foo@bar.com")`.
 impl TryFrom<&str> for Email {
     type Error = ValidationError;
 

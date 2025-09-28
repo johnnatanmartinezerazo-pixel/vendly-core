@@ -1,38 +1,31 @@
+use regex::Regex;
 use std::fmt;
 use std::convert::TryFrom;
+use std::sync::LazyLock;
 
 use super::ValidationError;
 
-/// Value Object para Phone.
-/// Inmutable, validado y normalizado.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Phone(String);
+
+static PHONE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^\+[0-9]{7,15}$").unwrap()
+});
 
 impl Phone {
     /// Crea un nuevo `Phone` validando y normalizando el valor recibido.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
-        // Eliminamos espacios en blanco
+        // Eliminar espacios
         let cleaned: String = value.chars().filter(|c| !c.is_whitespace()).collect();
 
-        // Validación: debe comenzar con '+' y contener solo dígitos después
-        if !cleaned.starts_with('+') {
-            return Err(ValidationError::InvalidPhone);
-        }
-
-        // Validación: longitud mínima y máxima
-        if cleaned.len() < 7 || cleaned.len() > 20 {
-            return Err(ValidationError::InvalidPhone);
-        }
-
-        // Validación: que el resto sean solo dígitos
-        if !cleaned[1..].chars().all(|c| c.is_ascii_digit()) {
+        // Validar con regex (E.164)
+        if !PHONE_REGEX.is_match(&cleaned) {
             return Err(ValidationError::InvalidPhone);
         }
 
         Ok(Self(cleaned))
     }
 
-    /// Devuelve el teléfono como `&str`.
     pub fn as_str(&self) -> &str {
         &self.0
     }
