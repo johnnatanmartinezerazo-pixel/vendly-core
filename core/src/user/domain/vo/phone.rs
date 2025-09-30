@@ -12,12 +12,9 @@ static PHONE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 impl Phone {
-    /// Crea un nuevo `Phone` validando y normalizando el valor recibido.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
-        // Eliminar espacios
         let cleaned: String = value.chars().filter(|c| !c.is_whitespace()).collect();
 
-        // Validar con regex (E.164)
         if !PHONE_REGEX.is_match(&cleaned) {
             return Err(ValidationError::InvalidPhone);
         }

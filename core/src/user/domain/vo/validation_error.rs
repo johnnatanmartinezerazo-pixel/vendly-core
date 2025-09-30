@@ -2,49 +2,27 @@ use std::fmt;
 
 use super::UserStatus;
 
-/// Errores de validación para todos los Value Objects del dominio User.
-/// Cada variante representa una regla de dominio incumplida.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ValidationError {
-    // Email
     InvalidEmailFormat,
     InvalidEmailTooLong,
-
-    // Phone
     InvalidPhone,
     MissingPhone,
-
-    // Username
     InvalidUsername,
-
-    // Identificador externo (Google, Microsoft, etc.)
     InvalidExternalId,
-
-    // Estado
     InvalidStatusTransition {
         from: UserStatus,
         to: UserStatus,
     },
     InvalidUserStatus,
-
-    // Roles
     InvalidRole,
-
-    // Perfil de usuario
     InvalidLocale,
     InvalidTimezone,
     InvalidGender,
-
-    // Autenticación
     InvalidAuthType,
-
-    // Suscripciones
     InvalidSubscriptionTier,
     InvalidSubscriptionStatus,
-
-    // GDPR / Consentimientos
     InvalidConsentType,
-
 }
 
 impl fmt::Display for ValidationError {

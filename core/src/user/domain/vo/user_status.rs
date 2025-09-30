@@ -12,7 +12,6 @@ pub enum UserStatus {
 }
 
 impl UserStatus {
-    /// Crea un `UserStatus` desde &str validando que sea uno de los valores permitidos.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         match value.trim() {
             v if v.eq_ignore_ascii_case("pending") => Ok(UserStatus::Pending),
@@ -23,7 +22,6 @@ impl UserStatus {
         }
     }
 
-    /// Devuelve el estado como &str (ej: "active").
     pub fn as_str(&self) -> &str {
         match self {
             UserStatus::Pending => "pending",

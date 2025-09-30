@@ -3,8 +3,6 @@ use std::convert::TryFrom;
 
 use super::ValidationError;
 
-/// Tipos de consentimiento soportados en el dominio.
-/// Solo se permiten los valores definidos en este enum.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ConsentType {
     TermsOfService,
@@ -14,7 +12,6 @@ pub enum ConsentType {
 }
 
 impl ConsentType {
-    /// Crea un `ConsentType` validando el valor recibido.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         match value.to_lowercase().as_str() {
             "terms_of_service" => Ok(ConsentType::TermsOfService),
@@ -25,7 +22,6 @@ impl ConsentType {
         }
     }
 
-    /// Devuelve el tipo de consentimiento como &str.
     pub fn as_str(&self) -> &str {
         match self {
             ConsentType::TermsOfService => "terms_of_service",

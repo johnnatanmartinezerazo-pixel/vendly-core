@@ -1,13 +1,11 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-// Import ValidationError from the parent module
 use super::ValidationError;
 
 pub struct ExternalId(String);
 
 impl ExternalId {
-    /// Crea un `ExternalId` validando reglas generales.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         let trimmed = value.trim();
 
@@ -22,7 +20,6 @@ impl ExternalId {
         Ok(Self(trimmed.to_string()))
     }
 
-    /// Devuelve el identificador como &str
     pub fn as_str(&self) -> &str {
         &self.0
     }

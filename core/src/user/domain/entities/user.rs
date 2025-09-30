@@ -1,6 +1,16 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use crate::user::domain::vo::{Email, Phone, Username, ExternalId, UserStatus, ValidationError};
+
+use crate::user::domain::{
+    Email,
+    ExternalId,
+    Phone,
+    UserStatus,
+    Username,
+    ValidationError,
+    UserEvent,
+    UserRegistered,
+  };
 
 pub struct User {
     user_id: Uuid,
@@ -14,12 +24,13 @@ pub struct User {
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
     deleted_at: Option<DateTime<Utc>>,
+    pending_events: Vec<Box<dyn UserEvent>>,
 }
 
 impl User {
     pub fn register(email: Email) -> Self {
         let now = Utc::now();
-        Self {
+        let mut user = Self {
             user_id: Uuid::new_v4(),
             external_id: None,
             username: None,
@@ -31,7 +42,17 @@ impl User {
             created_at: now,
             updated_at: now,
             deleted_at: None,
-        }
+            pending_events: Vec::new(),
+        };
+
+        let event = UserRegistered::new(user.user_id, user.email.as_str().to_string());
+        user.pending_events.push(Box::new(event));
+
+        user
+    }
+
+    pub fn take_events(&mut self) -> Vec<Box<dyn UserEvent>> {
+        std::mem::take(&mut self.pending_events)
     }
 
     pub fn id(&self) -> &Uuid {
@@ -78,21 +99,18 @@ impl User {
         self.deleted_at.as_ref()
     }
 
-    /// Actualiza el email del usuario y marca como no verificado.
     pub fn update_email(&mut self, email: Email) {
         self.email = email;
-        self.email_verified = false; // requiere nueva verificación
+        self.email_verified = false;
         self.status = UserStatus::Pending;
         self.updated_at = Utc::now();
     }
 
-    /// Marca el email como verificado.
     pub fn verify_email(&mut self) {
         self.email_verified = true;
         self.updated_at = Utc::now();
     }
 
-    /// Marca el teléfono como verificado.
     pub fn verify_phone(&mut self) -> Result<(), ValidationError> {
         match self.phone {
             Some(_) => {
@@ -104,8 +122,6 @@ impl User {
         }
     }
 
-
-    /// Cambia el estado del usuario.
     pub fn activate(&mut self) -> Result<(), ValidationError> {
         match self.status {
             UserStatus::Pending | UserStatus::Suspended => {
@@ -149,20 +165,17 @@ impl User {
         }
     }
 
-    /// Asigna un username
     pub fn assign_username(&mut self, username: Username) {
         self.username = Some(username);
         self.updated_at = Utc::now();
     }
 
-    /// Asigna un phone
     pub fn assign_phone(&mut self, phone: Phone) {
         self.phone = Some(phone);
         self.phone_verified = false; // requiere nueva verificación
         self.updated_at = Utc::now();
     }
 
-    /// Asigna un external_id
     pub fn link_external_id(&mut self, external_id: ExternalId) {
         self.external_id = Some(external_id);
         self.updated_at = Utc::now();

@@ -1,0 +1,23 @@
+pub mod user_registered;
+pub mod user_email_updated;
+pub mod user_email_verified;
+pub mod user_phone_assigned;
+pub mod user_phone_verified;
+pub mod user_username_assigned;
+pub mod user_external_id_linked;
+pub mod user_activated;
+pub mod user_suspended;
+pub mod user_deleted;
+pub mod user_event;
+
+pub use user_registered::UserRegistered;
+pub use user_email_updated::UserEmailUpdated;
+pub use user_email_verified::UserEmailVerified;
+pub use user_phone_assigned::UserPhoneAssigned;
+pub use user_phone_verified::UserPhoneVerified;
+pub use user_username_assigned::UserUsernameAssigned;
+pub use user_external_id_linked::UserExternalIdLinked;
+pub use user_activated::UserActivated;
+pub use user_suspended::UserSuspended;
+pub use user_deleted::UserDeleted;
+pub use user_event::UserEvent;

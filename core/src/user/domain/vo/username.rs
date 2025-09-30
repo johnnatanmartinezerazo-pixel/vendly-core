@@ -12,12 +12,9 @@ static USERNAME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 impl Username {
-    /// Crea un `Username` validando reglas de negocio.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
-        // Normalizar: trim y lowercase
         let trimmed = value.trim().to_lowercase();
 
-        // Validar regex: debe empezar con letra, luego letras/números/._ permitidos
         if !USERNAME_REGEX.is_match(&trimmed) {
             return Err(ValidationError::InvalidUsername);
         }
@@ -25,7 +22,6 @@ impl Username {
         Ok(Self(trimmed))
     }
 
-    /// Devuelve el username como &str.
     pub fn as_str(&self) -> &str {
         &self.0
     }

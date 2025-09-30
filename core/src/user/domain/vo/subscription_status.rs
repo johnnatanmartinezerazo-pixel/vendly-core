@@ -3,8 +3,6 @@ use std::convert::TryFrom;
 
 use super::ValidationError;
 
-/// Estados válidos de una suscripción de usuario.
-/// VO que garantiza consistencia con las reglas de negocio.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SubscriptionStatus {
     Active,
@@ -15,7 +13,6 @@ pub enum SubscriptionStatus {
 }
 
 impl SubscriptionStatus {
-    /// Crea un `SubscriptionStatus` validando el valor recibido.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         match value.to_lowercase().as_str() {
             "active" => Ok(SubscriptionStatus::Active),
@@ -27,7 +24,6 @@ impl SubscriptionStatus {
         }
     }
 
-    /// Devuelve el estado como &str (para persistencia/serialización).
     pub fn as_str(&self) -> &str {
         match self {
             SubscriptionStatus::Active => "active",

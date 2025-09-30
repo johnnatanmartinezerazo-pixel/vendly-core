@@ -1,12 +1,13 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
-pub struct UserPhoneVerified {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UserSuspended {
     pub user_id: Uuid,
     pub occurred_at: DateTime<Utc>,
 }
 
-impl UserPhoneVerified {
+impl UserSuspended {
     pub fn new(user_id: Uuid) -> Self {
         Self {
             user_id,

@@ -3,8 +3,6 @@ use std::convert::TryFrom;
 
 use super::ValidationError;
 
-/// Tipos de autenticación soportados.
-/// Esto puede crecer según las necesidades del dominio.
 pub enum AuthType {
     Password,
     Oidc,
@@ -12,7 +10,6 @@ pub enum AuthType {
 }
 
 impl AuthType {
-    /// Crea un `AuthType` a partir de un &str validando el valor.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         match value.to_lowercase().as_str() {
             "password" => Ok(AuthType::Password),
@@ -22,7 +19,6 @@ impl AuthType {
         }
     }
 
-    /// Devuelve el `AuthType` como `&str` para persistencia o serialización.
     pub fn as_str(&self) -> &str {
         match self {
             AuthType::Password => "password",

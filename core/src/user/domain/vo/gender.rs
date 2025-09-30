@@ -3,8 +3,6 @@ use std::convert::TryFrom;
 
 use super::ValidationError;
 
-/// Géneros soportados en el dominio.
-/// Este VO asegura que solo se usen valores válidos.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Gender {
     Male,
@@ -15,7 +13,6 @@ pub enum Gender {
 }
 
 impl Gender {
-    /// Crea un `Gender` validando el valor recibido.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         match value.to_lowercase().as_str() {
             "male" => Ok(Gender::Male),
@@ -27,7 +24,6 @@ impl Gender {
         }
     }
 
-    /// Devuelve el género como `&str`.
     pub fn as_str(&self) -> &str {
         match self {
             Gender::Male => "male",

@@ -4,31 +4,25 @@ use chrono_tz::Tz;
 
 use super::ValidationError;
 
-/// VO que representa una zona horaria válida según IANA.
-/// Siempre consistente y segura para trabajar con fechas.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Timezone(String);
 
 impl Timezone {
-    /// Crea un `Timezone` validando contra la base de datos IANA (chrono-tz).
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         let trimmed = value.trim();
 
-        // Validar que sea una zona horaria reconocida
         match trimmed.parse::<Tz>() {
             Ok(_) => Ok(Self(trimmed.to_string())),
             Err(_) => Err(ValidationError::InvalidTimezone),
         }
     }
 
-    /// Devuelve la zona horaria como &str.
     pub fn as_str(&self) -> &str {
         &self.0
     }
 
-    /// Devuelve la zona horaria como `chrono_tz::Tz`.
     pub fn as_tz(&self) -> Tz {
-        self.0.parse::<Tz>().unwrap() // seguro porque siempre fue validado
+        self.0.parse::<Tz>().unwrap()
     }
 }
 
@@ -54,6 +48,6 @@ impl TryFrom<&str> for Timezone {
 
 impl Default for Timezone {
     fn default() -> Self {
-        Timezone("America/Bogota".to_string()) // valor por defecto
+        Timezone("America/Bogota".to_string())
     }
 }

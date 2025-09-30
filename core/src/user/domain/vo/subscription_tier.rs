@@ -3,8 +3,6 @@ use std::convert::TryFrom;
 
 use super::ValidationError;
 
-/// Niveles válidos de suscripción de usuario.
-/// VO que encapsula las reglas de negocio.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SubscriptionTier {
     Free,
@@ -14,7 +12,6 @@ pub enum SubscriptionTier {
 }
 
 impl SubscriptionTier {
-    /// Crea un `SubscriptionTier` validando el valor recibido.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         match value.to_lowercase().as_str() {
             "free" => Ok(SubscriptionTier::Free),
@@ -25,7 +22,6 @@ impl SubscriptionTier {
         }
     }
 
-    /// Devuelve el tier como `&str`.
     pub fn as_str(&self) -> &str {
         match self {
             SubscriptionTier::Free => "free",

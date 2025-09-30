@@ -14,16 +14,13 @@ static EMAIL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 impl Email {
-    /// Crea un nuevo Email validando y normalizando el valor recibido.
     pub fn new(value: &str) -> Result<Self, ValidationError> {
         let trimmed = value.trim().to_lowercase();
 
-        // Longitud máxima total del email: 254 caracteres
         if trimmed.len() > 254 {
             return Err(ValidationError::InvalidEmailTooLong);
         }
 
-        // Validar con regex el formato del email
         if !EMAIL_REGEX.is_match(&trimmed) {
             return Err(ValidationError::InvalidEmailFormat);
         }
@@ -31,7 +28,6 @@ impl Email {
         Ok(Self(trimmed))
     }
 
-    /// Devuelve el email como `&str`.
     pub fn as_str(&self) -> &str {
         &self.0
     }
