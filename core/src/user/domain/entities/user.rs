@@ -1,16 +1,27 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
-use crate::user::domain::{
+use crate::user::domain::vo::{
     Email,
     ExternalId,
     Phone,
     UserStatus,
     Username,
     ValidationError,
+};
+use crate::user::domain::events::{
     UserEvent,
     UserRegistered,
-  };
+    UserEmailUpdated,
+    UserEmailVerified,
+    UserPhoneAssigned,
+    UserPhoneVerified,
+    UserActivated,
+    UserSuspended,
+    UserDeleted,
+    UserUsernameAssigned,
+    UserExternalIdLinked,
+};
 
 pub struct User {
     user_id: Uuid,
@@ -20,7 +31,7 @@ pub struct User {
     email_verified: bool,
     phone: Option<Phone>,
     phone_verified: bool,
-    status: UserStatus,
+    user_status: UserStatus,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
     deleted_at: Option<DateTime<Utc>>,
@@ -28,9 +39,9 @@ pub struct User {
 }
 
 impl User {
-    pub fn register(email: Email) -> Self {
+    pub fn register(email: Email) -> User {
         let now = Utc::now();
-        let mut user = Self {
+        let mut user: User = Self {
             user_id: Uuid::new_v4(),
             external_id: None,
             username: None,
@@ -38,16 +49,14 @@ impl User {
             email_verified: false,
             phone: None,
             phone_verified: false,
-            status: UserStatus::Pending,
+            user_status: UserStatus::Pending,
             created_at: now,
             updated_at: now,
             deleted_at: None,
             pending_events: Vec::new(),
         };
 
-        let event = UserRegistered::new(user.user_id, user.email.as_str().to_string());
-        user.pending_events.push(Box::new(event));
-
+        user.pending_events.push(Box::new(UserRegistered::new(user.user_id, user.email.clone())));
         user
     }
 
@@ -75,8 +84,8 @@ impl User {
         self.phone_verified
     }
 
-    pub fn status(&self) -> &UserStatus {
-        &self.status
+    pub fn user_status(&self) -> &UserStatus {
+        &self.user_status
     }
 
     pub fn username(&self) -> Option<&Username> {
@@ -100,15 +109,25 @@ impl User {
     }
 
     pub fn update_email(&mut self, email: Email) {
+        let old_email = self.email.clone();
         self.email = email;
         self.email_verified = false;
-        self.status = UserStatus::Pending;
+        self.user_status = UserStatus::Pending;
         self.updated_at = Utc::now();
+        self.pending_events.push(Box::new(UserEmailUpdated::new(
+            self.user_id.clone(),
+            old_email,
+            self.email.clone(),
+        )));
     }
 
     pub fn verify_email(&mut self) {
         self.email_verified = true;
         self.updated_at = Utc::now();
+        self.pending_events.push(Box::new(UserEmailVerified::new(
+            self.user_id.clone(),
+            self.email.clone(),
+        )));
     }
 
     pub fn verify_phone(&mut self) -> Result<(), ValidationError> {
@@ -116,6 +135,10 @@ impl User {
             Some(_) => {
                 self.phone_verified = true;
                 self.updated_at = Utc::now();
+                self.pending_events.push(Box::new(UserPhoneVerified::new(
+                    self.user_id.clone(),
+                    self.phone.clone().unwrap(),
+                )));
                 Ok(())
             }
             None => Err(ValidationError::MissingPhone),
@@ -123,62 +146,91 @@ impl User {
     }
 
     pub fn activate(&mut self) -> Result<(), ValidationError> {
-        match self.status {
+        match self.user_status {
             UserStatus::Pending | UserStatus::Suspended => {
-                self.status = UserStatus::Active;
+                self.user_status = UserStatus::Active;
                 self.updated_at = Utc::now();
+                self.pending_events.push(Box::new(UserActivated::new(
+                    self.user_id.clone(),
+                    self.user_status.clone(),
+                )));
                 Ok(())
             }
             _ => Err(ValidationError::InvalidStatusTransition {
-                from: self.status.clone(),
+                from: self.user_status.clone(),
                 to: UserStatus::Active,
             }),
         }
     }
 
     pub fn suspend(&mut self) -> Result<(), ValidationError> {
-        match self.status {
+        match self.user_status {
             UserStatus::Active => {
-                self.status = UserStatus::Suspended;
+                self.user_status = UserStatus::Suspended;
                 self.updated_at = Utc::now();
+                self.pending_events.push(Box::new(UserSuspended::new(
+                    self.user_id.clone(),
+                    self.user_status.clone(),
+                )));
                 Ok(())
             }
             _ => Err(ValidationError::InvalidStatusTransition {
-                from: self.status.clone(),
+                from: self.user_status.clone(),
                 to: UserStatus::Suspended,
             }),
         }
     }
 
     pub fn delete(&mut self) -> Result<(), ValidationError> {
-        match self.status {
+        match self.user_status {
             UserStatus::Active | UserStatus::Pending | UserStatus::Suspended => {
-                self.status = UserStatus::Deleted;
+                self.user_status = UserStatus::Deleted;
                 self.deleted_at = Some(Utc::now());
                 self.updated_at = Utc::now();
+                self.pending_events.push(Box::new(UserDeleted::new(
+                  self.user_id.clone(),
+                  self.user_status.clone(),
+                )));
                 Ok(())
             }
             _ => Err(ValidationError::InvalidStatusTransition {
-                from: self.status.clone(),
+                from: self.user_status.clone(),
                 to: UserStatus::Deleted,
             }),
         }
     }
 
-    pub fn assign_username(&mut self, username: Username) {
+    pub fn assign_username(&mut self, username: Username) -> Result<(), ValidationError> {
         self.username = Some(username);
         self.updated_at = Utc::now();
+        self.pending_events.push(Box::new(UserUsernameAssigned::new(
+            self.user_id.clone(),
+            self.username.clone().unwrap(),
+        )));
+        Ok(())
     }
 
-    pub fn assign_phone(&mut self, phone: Phone) {
+    pub fn assign_phone(&mut self, phone: Phone) -> Result<(), ValidationError> {
         self.phone = Some(phone);
-        self.phone_verified = false; // requiere nueva verificación
+        self.phone_verified = false;
         self.updated_at = Utc::now();
+        self.pending_events.push(Box::new(UserPhoneAssigned::new(
+            self.user_id.clone(),
+            self.phone.clone().unwrap(),
+        )));
+        Ok(())
     }
 
-    pub fn link_external_id(&mut self, external_id: ExternalId) {
+    pub fn link_external_id(&mut self, external_id: ExternalId) -> Result<(), ValidationError> {
         self.external_id = Some(external_id);
         self.updated_at = Utc::now();
+
+        self.pending_events.push(Box::new(UserExternalIdLinked::new(
+            self.user_id.clone(),
+            self.external_id.clone().unwrap(),
+        )));
+
+        Ok(())
     }
 
 }
