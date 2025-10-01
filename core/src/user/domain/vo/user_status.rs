@@ -3,7 +3,7 @@ use std::convert::TryFrom;
 
 use super::ValidationError;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum UserStatus {
     Pending,
     Active,

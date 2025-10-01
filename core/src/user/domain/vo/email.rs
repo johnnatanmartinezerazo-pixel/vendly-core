@@ -5,6 +5,7 @@ use std::sync::LazyLock;
 
 use super::ValidationError;
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Email(String);
 
 static EMAIL_REGEX: LazyLock<Regex> = LazyLock::new(|| {

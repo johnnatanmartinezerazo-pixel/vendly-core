@@ -3,6 +3,7 @@ use std::convert::TryFrom;
 
 use super::ValidationError;
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExternalId(String);
 
 impl ExternalId {
