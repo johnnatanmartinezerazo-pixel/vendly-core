@@ -1,13 +1,13 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use crate::user::domain::vo::ExternalId;
 
+use crate::user::domain::vo::ExternalId;
 use super::UserEvent;
 
 pub struct UserExternalIdLinked {
-    pub user_id: Uuid,
-    pub external_id: ExternalId,
-    pub occurred_at: DateTime<Utc>,
+    user_id: Uuid,
+    external_id: ExternalId,
+    occurred_at: DateTime<Utc>,
 }
 
 impl UserExternalIdLinked {

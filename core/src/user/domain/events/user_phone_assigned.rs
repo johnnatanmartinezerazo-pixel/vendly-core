@@ -1,16 +1,17 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
+use crate::user::domain::vo::Phone;
 use super::UserEvent;
 
 pub struct UserPhoneAssigned {
-    pub user_id: Uuid,
-    pub phone: String,
-    pub occurred_at: DateTime<Utc>,
+    user_id: Uuid,
+    phone: Phone,
+    occurred_at: DateTime<Utc>,
 }
 
 impl UserPhoneAssigned {
-    pub fn new(user_id: Uuid, phone: String) -> Self {
+    pub fn new(user_id: Uuid, phone: Phone) -> Self {
         Self {
             user_id,
             phone,

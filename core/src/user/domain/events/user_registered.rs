@@ -1,16 +1,17 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
+use crate::user::domain::vo::Email;
 use super::UserEvent;
 
 pub struct UserRegistered {
-    pub user_id: Uuid,
-    pub email: String,
-    pub occurred_at: DateTime<Utc>,
+    user_id: Uuid,
+    email: Email,
+    occurred_at: DateTime<Utc>,
 }
 
 impl UserRegistered {
-    pub fn new(user_id: Uuid, email: String) -> Self {
+    pub fn new(user_id: Uuid, email: Email) -> Self {
         Self {
           user_id,
           email,

@@ -5,9 +5,9 @@ use crate::user::domain::vo::Username;
 use super::UserEvent;
 
 pub struct UserUsernameAssigned {
-    pub user_id: Uuid,
-    pub username: Username,
-    pub occurred_at: DateTime<Utc>,
+    user_id: Uuid,
+    username: Username,
+    occurred_at: DateTime<Utc>,
 }
 
 impl UserUsernameAssigned {
