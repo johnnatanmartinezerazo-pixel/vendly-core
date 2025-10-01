@@ -1,6 +1,8 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
+use super::UserEvent;
+
 pub struct UserEmailVerified {
     pub user_id: Uuid,
     pub email: String,
@@ -14,5 +16,15 @@ impl UserEmailVerified {
             email,
             occurred_at: Utc::now(),
         }
+    }
+}
+
+impl UserEvent for UserEmailVerified {
+    fn event_name(&self) -> &'static str {
+        "UserEmailVerified"
+    }
+
+    fn occurred_at(&self) -> DateTime<Utc> {
+        self.occurred_at
     }
 }

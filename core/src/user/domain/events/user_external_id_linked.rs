@@ -2,6 +2,8 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use crate::user::domain::vo::ExternalId;
 
+use super::UserEvent;
+
 pub struct UserExternalIdLinked {
     pub user_id: Uuid,
     pub external_id: ExternalId,
@@ -15,5 +17,15 @@ impl UserExternalIdLinked {
             external_id,
             occurred_at: Utc::now(),
         }
+    }
+}
+
+impl UserEvent for UserExternalIdLinked {
+    fn event_name(&self) -> &'static str {
+        "UserExternalIdLinked"
+    }
+
+    fn occurred_at(&self) -> DateTime<Utc> {
+        self.occurred_at
     }
 }

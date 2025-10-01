@@ -1,6 +1,8 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
+use super::UserEvent;
+
 pub struct UserPhoneAssigned {
     pub user_id: Uuid,
     pub phone: String,
@@ -14,5 +16,15 @@ impl UserPhoneAssigned {
             phone,
             occurred_at: Utc::now(),
         }
+    }
+}
+
+impl UserEvent for UserPhoneAssigned {
+    fn event_name(&self) -> &'static str {
+        "UserPhoneAssigned"
+    }
+
+    fn occurred_at(&self) -> DateTime<Utc> {
+        self.occurred_at
     }
 }

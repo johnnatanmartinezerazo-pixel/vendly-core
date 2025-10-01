@@ -1,7 +1,8 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+use super::UserEvent;
+
 pub struct UserSuspended {
     pub user_id: Uuid,
     pub occurred_at: DateTime<Utc>,
@@ -13,5 +14,15 @@ impl UserSuspended {
             user_id,
             occurred_at: Utc::now(),
         }
+    }
+}
+
+impl UserEvent for UserSuspended {
+    fn event_name(&self) -> &'static str {
+        "UserSuspended"
+    }
+
+    fn occurred_at(&self) -> DateTime<Utc> {
+        self.occurred_at
     }
 }
