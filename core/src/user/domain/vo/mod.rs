@@ -26,4 +26,4 @@ pub use subscription_tier::SubscriptionTier;
 pub use timezone::Timezone;
 pub use user_status::UserStatus;
 pub use username::Username;
-pub use validation_error::ValidationError;
+pub use validation_error::*;

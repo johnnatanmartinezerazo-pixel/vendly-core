@@ -1,7 +1,7 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::ValidationError;
+use super::{ValidationError, ExternalIdErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExternalId(String);
@@ -11,11 +11,11 @@ impl ExternalId {
         let trimmed = value.trim();
 
         if trimmed.is_empty() {
-            return Err(ValidationError::InvalidExternalId);
+            return Err(ExternalIdErrorKind::Empty.into());
         }
 
         if trimmed.len() > 255 {
-            return Err(ValidationError::InvalidExternalId);
+            return Err(ExternalIdErrorKind::TooLong.into());
         }
 
         Ok(Self(trimmed.to_string()))

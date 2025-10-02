@@ -3,7 +3,7 @@ use std::fmt;
 use std::convert::TryFrom;
 use std::sync::LazyLock;
 
-use super::ValidationError;
+use super::{ValidationError, EmailErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Email(String);
@@ -16,14 +16,18 @@ static EMAIL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 
 impl Email {
     pub fn new(value: &str) -> Result<Self, ValidationError> {
+        if value.trim().is_empty() {
+            return Err(EmailErrorKind::Empty.into());
+        }
+
         let trimmed = value.trim().to_lowercase();
 
         if trimmed.len() > 254 {
-            return Err(ValidationError::InvalidEmailTooLong);
+            return Err(EmailErrorKind::TooLong.into());
         }
 
         if !EMAIL_REGEX.is_match(&trimmed) {
-            return Err(ValidationError::InvalidEmailFormat);
+            return Err(EmailErrorKind::Format.into());
         }
 
         Ok(Self(trimmed))

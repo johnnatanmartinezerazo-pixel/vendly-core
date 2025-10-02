@@ -1,7 +1,7 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::ValidationError;
+use super::{ValidationError, SubscriptionStatusErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SubscriptionStatus {
@@ -20,7 +20,7 @@ impl SubscriptionStatus {
             "pending" => Ok(SubscriptionStatus::Pending),
             "canceled" | "cancelled" => Ok(SubscriptionStatus::Canceled),
             "expired" => Ok(SubscriptionStatus::Expired),
-            _ => Err(ValidationError::InvalidSubscriptionStatus),
+            _ => Err(SubscriptionStatusErrorKind::Value.into()),
         }
     }
 

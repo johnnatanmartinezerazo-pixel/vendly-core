@@ -1,7 +1,7 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::ValidationError;
+use super::{ValidationError, AuthTypeErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum AuthType {
@@ -16,7 +16,7 @@ impl AuthType {
             "password" => Ok(AuthType::Password),
             "oidc" => Ok(AuthType::Oidc),
             "saml" => Ok(AuthType::Saml),
-            _ => Err(ValidationError::InvalidAuthType),
+            _ => Err(AuthTypeErrorKind::Value.into()),
         }
     }
 

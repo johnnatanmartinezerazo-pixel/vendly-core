@@ -1,7 +1,7 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::ValidationError;
+use super::{ValidationError, SubscriptionTierErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SubscriptionTier {
@@ -18,7 +18,7 @@ impl SubscriptionTier {
             "basic" => Ok(SubscriptionTier::Basic),
             "premium" => Ok(SubscriptionTier::Premium),
             "enterprise" => Ok(SubscriptionTier::Enterprise),
-            _ => Err(ValidationError::InvalidSubscriptionTier),
+            _ => Err(SubscriptionTierErrorKind::Value.into()),
         }
     }
 

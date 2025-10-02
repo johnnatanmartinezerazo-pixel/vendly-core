@@ -2,7 +2,7 @@ use std::fmt;
 use std::convert::TryFrom;
 use chrono_tz::Tz;
 
-use super::ValidationError;
+use super::{ValidationError, TimezoneErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Timezone(String);
@@ -13,7 +13,7 @@ impl Timezone {
 
         match trimmed.parse::<Tz>() {
             Ok(_) => Ok(Self(trimmed.to_string())),
-            Err(_) => Err(ValidationError::InvalidTimezone),
+            Err(_) => Err(TimezoneErrorKind::Value.into()),
         }
     }
 

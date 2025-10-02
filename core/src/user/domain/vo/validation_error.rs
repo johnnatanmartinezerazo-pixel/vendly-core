@@ -189,6 +189,12 @@ impl From<GenderErrorKind> for ValidationError {
     }
 }
 
+impl From<AuthTypeErrorKind> for ValidationError {
+    fn from(value: AuthTypeErrorKind) -> Self {
+        ValidationError::AuthTypeError { reason: value }
+    }
+}
+
 impl From<SubscriptionTierErrorKind> for ValidationError {
     fn from(value: SubscriptionTierErrorKind) -> Self {
         ValidationError::SubscriptionTierError { reason: value }

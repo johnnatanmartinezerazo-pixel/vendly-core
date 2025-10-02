@@ -1,7 +1,7 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::ValidationError;
+use super::{ValidationError, GenderErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Gender {
@@ -20,7 +20,7 @@ impl Gender {
             "non_binary" | "non-binary" => Ok(Gender::NonBinary),
             "other" => Ok(Gender::Other),
             "prefer_not_to_say" | "prefer-not-to-say" => Ok(Gender::PreferNotToSay),
-            _ => Err(ValidationError::InvalidGender),
+            _ => Err(GenderErrorKind::Value.into()),
         }
     }
 

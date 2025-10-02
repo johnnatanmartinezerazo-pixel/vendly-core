@@ -2,7 +2,7 @@ use std::fmt;
 use std::convert::TryFrom;
 use regex::Regex;
 
-use super::ValidationError;
+use super::{ValidationError, LocaleErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Locale(String);
@@ -12,7 +12,7 @@ impl Locale {
         let trimmed = value.trim();
 
         if trimmed.len() < 2 || trimmed.len() > 10 {
-            return Err(ValidationError::InvalidLocale);
+            return Err(LocaleErrorKind::Format.into());
         }
 
         let regex = Regex::new(r"^[a-z]{2,3}([-_][A-Z]{2})?$").unwrap();
@@ -20,7 +20,7 @@ impl Locale {
         if regex.is_match(trimmed) {
             Ok(Self(trimmed.replace('_', "-")))
         } else {
-            Err(ValidationError::InvalidLocale)
+            Err(LocaleErrorKind::Format.into())
         }
     }
 

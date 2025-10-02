@@ -3,7 +3,7 @@ use std::fmt;
 use std::convert::TryFrom;
 use std::sync::LazyLock;
 
-use super::ValidationError;
+use super::{ValidationError, PhoneErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Phone(String);
@@ -17,7 +17,7 @@ impl Phone {
         let cleaned: String = value.chars().filter(|c| !c.is_whitespace()).collect();
 
         if !PHONE_REGEX.is_match(&cleaned) {
-            return Err(ValidationError::InvalidPhone);
+            return Err(PhoneErrorKind::Format.into());
         }
 
         Ok(Self(cleaned))

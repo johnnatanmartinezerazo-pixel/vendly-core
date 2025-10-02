@@ -1,7 +1,7 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::ValidationError;
+use super::{ValidationError, UserStatusErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum UserStatus {
@@ -18,7 +18,7 @@ impl UserStatus {
             v if v.eq_ignore_ascii_case("active") => Ok(UserStatus::Active),
             v if v.eq_ignore_ascii_case("suspended") => Ok(UserStatus::Suspended),
             v if v.eq_ignore_ascii_case("deleted") => Ok(UserStatus::Deleted),
-            _ => Err(ValidationError::InvalidUserStatus),
+            _ => Err(UserStatusErrorKind::Value.into()),
         }
     }
 

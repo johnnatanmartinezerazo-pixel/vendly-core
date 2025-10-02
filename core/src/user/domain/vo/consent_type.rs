@@ -1,7 +1,7 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::ValidationError;
+use super::{ValidationError, ConsentTypeErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ConsentType {
@@ -18,7 +18,7 @@ impl ConsentType {
             "privacy_policy" => Ok(ConsentType::PrivacyPolicy),
             "marketing_emails" => Ok(ConsentType::MarketingEmails),
             "data_retention" => Ok(ConsentType::DataRetention),
-            _ => Err(ValidationError::InvalidConsentType),
+            _ => Err(ConsentTypeErrorKind::Value.into()),
         }
     }
 

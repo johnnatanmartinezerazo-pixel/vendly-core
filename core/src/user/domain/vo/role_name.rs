@@ -2,7 +2,7 @@ use std::fmt;
 use std::convert::TryFrom;
 use regex::Regex;
 
-use super::ValidationError;
+use super::{ValidationError, RoleErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct RoleName(String);
@@ -12,13 +12,13 @@ impl RoleName {
         let trimmed = value.trim();
 
         if trimmed.len() < 3 || trimmed.len() > 50 {
-            return Err(ValidationError::InvalidRole);
+            return Err(RoleErrorKind::Value.into());
         }
 
         let regex = Regex::new(r"^[a-zA-Z0-9_-]+$").unwrap();
 
         if !regex.is_match(trimmed) {
-            return Err(ValidationError::InvalidRole);
+            return Err(RoleErrorKind::Value.into());
         }
 
         Ok(Self(trimmed.to_lowercase()))

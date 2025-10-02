@@ -3,7 +3,7 @@ use std::fmt;
 use std::convert::TryFrom;
 use std::sync::LazyLock;
 
-use super::ValidationError;
+use super::{ValidationError, UsernameErrorKind};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Username(String);
@@ -17,7 +17,7 @@ impl Username {
         let trimmed = value.trim().to_lowercase();
 
         if !USERNAME_REGEX.is_match(&trimmed) {
-            return Err(ValidationError::InvalidUsername);
+            return Err(UsernameErrorKind::Characters.into());
         }
 
         Ok(Self(trimmed))
