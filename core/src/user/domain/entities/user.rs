@@ -7,7 +7,11 @@ use crate::user::domain::vo::{
     Phone,
     UserStatus,
     Username,
+};
+use crate::user::domain::vo::{
     ValidationError,
+    PhoneErrorKind,
+    UserStatusErrorKind,
 };
 use crate::user::domain::events::{
     UserEvent,
@@ -141,7 +145,7 @@ impl User {
                 )));
                 Ok(())
             }
-            None => Err(ValidationError::MissingPhone),
+            None => Err(PhoneErrorKind::Missing.into()),
         }
     }
 
@@ -156,10 +160,10 @@ impl User {
                 )));
                 Ok(())
             }
-            _ => Err(ValidationError::InvalidStatusTransition {
+            _ => Err(UserStatusErrorKind::Transition {
                 from: self.user_status.clone(),
                 to: UserStatus::Active,
-            }),
+            }.into()),
         }
     }
 
@@ -174,10 +178,10 @@ impl User {
                 )));
                 Ok(())
             }
-            _ => Err(ValidationError::InvalidStatusTransition {
+            _ => Err(UserStatusErrorKind::Transition {
                 from: self.user_status.clone(),
                 to: UserStatus::Suspended,
-            }),
+            }.into()),
         }
     }
 
@@ -193,10 +197,10 @@ impl User {
                 )));
                 Ok(())
             }
-            _ => Err(ValidationError::InvalidStatusTransition {
+            _ => Err(UserStatusErrorKind::Transition {
                 from: self.user_status.clone(),
                 to: UserStatus::Deleted,
-            }),
+            }.into()),
         }
     }
 
