@@ -1,24 +1,37 @@
 use std::fmt;
 use std::convert::TryFrom;
-use regex::Regex;
 
-use super::{ValidationError, RoleErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+    ROLE_NAME_REGEX,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct RoleName(String);
 
 impl RoleName {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
-        let trimmed = value.trim();
-
-        if trimmed.len() < 3 || trimmed.len() > 50 {
-            return Err(RoleErrorKind::Value.into());
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
+        if value.trim().is_empty() {
+            return Err((CategoryError::Role, TypeError::Empty).into());
         }
 
-        let regex = Regex::new(r"^[a-zA-Z0-9_-]+$").unwrap();
+        let trimmed = value.trim().to_lowercase();
+        let len = trimmed.len();
+        const MIN_ROLE_LEN: usize = 3;
+        const MAX_ROLE_LEN: usize = 50;
 
-        if !regex.is_match(trimmed) {
-            return Err(RoleErrorKind::Value.into());
+        if len >= MIN_ROLE_LEN {
+            return Err((CategoryError::Role, TypeError::TooShort { short: MIN_ROLE_LEN as i16 }).into());
+        }
+
+        if len <= MAX_ROLE_LEN {
+            return Err((CategoryError::Role, TypeError::TooLong { long: MAX_ROLE_LEN as i32 }).into());
+        }
+
+        if !ROLE_NAME_REGEX.regex.is_match(&trimmed) {
+            return Err((CategoryError::Role, TypeError::Format { format: ROLE_NAME_REGEX.name.into() }).into());
         }
 
         Ok(Self(trimmed.to_lowercase()))
@@ -42,7 +55,7 @@ impl fmt::Display for RoleName {
 }
 
 impl TryFrom<&str> for RoleName {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         RoleName::new(value)

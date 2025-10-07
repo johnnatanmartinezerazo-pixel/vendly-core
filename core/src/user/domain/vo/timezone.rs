@@ -2,18 +2,21 @@ use std::fmt;
 use std::convert::TryFrom;
 use chrono_tz::Tz;
 
-use super::{ValidationError, TimezoneErrorKind};
-
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+};
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Timezone(String);
 
 impl Timezone {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         let trimmed = value.trim();
 
         match trimmed.parse::<Tz>() {
             Ok(_) => Ok(Self(trimmed.to_string())),
-            Err(_) => Err(TimezoneErrorKind::Value.into()),
+            Err(_) => Err((CategoryError::Timezone, TypeError::NotSupported).into()),
         }
     }
 
@@ -39,7 +42,7 @@ impl fmt::Display for Timezone {
 }
 
 impl TryFrom<&str> for Timezone {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         Timezone::new(value)

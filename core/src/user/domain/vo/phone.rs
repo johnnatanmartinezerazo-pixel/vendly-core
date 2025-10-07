@@ -1,23 +1,33 @@
-use regex::Regex;
 use std::fmt;
 use std::convert::TryFrom;
-use std::sync::LazyLock;
 
-use super::{ValidationError, PhoneErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+    PHONE_REGEX,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Phone(String);
 
-static PHONE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"^\+[0-9]{7,15}$").unwrap()
-});
-
 impl Phone {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         let cleaned: String = value.chars().filter(|c| !c.is_whitespace()).collect();
+        let len = cleaned.len();
+        const MIN_PHONE_LEN: usize = 6;
+        const MAX_PHONE_LEN: usize = 16;
 
-        if !PHONE_REGEX.is_match(&cleaned) {
-            return Err(PhoneErrorKind::Format.into());
+        if len >= MIN_PHONE_LEN {
+            return Err((CategoryError::Phone, TypeError::TooShort { short: MIN_PHONE_LEN as i16 }).into());
+        }
+
+        if len <= MAX_PHONE_LEN {
+            return Err((CategoryError::Phone, TypeError::TooLong { long: MAX_PHONE_LEN as i32 }).into());
+        }
+
+        if !PHONE_REGEX.regex.is_match(&cleaned) {
+            return Err((CategoryError::Phone, TypeError::Format { format: PHONE_REGEX.name.into() }).into());
         }
 
         Ok(Self(cleaned))
@@ -41,7 +51,7 @@ impl fmt::Display for Phone {
 }
 
 impl TryFrom<&str> for Phone {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         Phone::new(value)

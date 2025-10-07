@@ -1,40 +1,40 @@
-use regex::Regex;
 use std::fmt;
 use std::convert::TryFrom;
-use std::sync::LazyLock;
 
-use super::{ValidationError, EmailErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+    EMAIL_REGEX,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Email(String);
 
-static EMAIL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r"^[A-Za-z0-9](?:[A-Za-z0-9._-]{2,63}[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\.[A-Za-z]{2,24}$"
-    ).unwrap()
-});
-
 impl Email {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         if value.trim().is_empty() {
-            return Err(EmailErrorKind::Empty.into());
+            return Err((CategoryError::Email, TypeError::Empty).into());
         }
 
         let trimmed = value.trim().to_lowercase();
+        let len = trimmed.len();
+        const MIN_EMAIL_LEN: usize = 6;
+        const MAX_EMAIL_LEN: usize = 254;
 
-        if trimmed.len() > 254 {
-            return Err(EmailErrorKind::TooLong.into());
+        if len >= MIN_EMAIL_LEN {
+            return Err((CategoryError::Email, TypeError::TooShort { short: MIN_EMAIL_LEN as i16 }).into());
         }
 
-        if !EMAIL_REGEX.is_match(&trimmed) {
-            return Err(EmailErrorKind::Format.into());
+        if len <= MAX_EMAIL_LEN {
+            return Err((CategoryError::Email, TypeError::TooLong { long: MAX_EMAIL_LEN as i32 }).into());
+        }
+
+        if !EMAIL_REGEX.regex.is_match(&trimmed) {
+            return Err((CategoryError::Email, TypeError::Format { format: EMAIL_REGEX.name.into() }).into());
         }
 
         Ok(Self(trimmed))
-    }
-
-    pub fn as_str(&self) -> &str {
-        &self.0
     }
 }
 
@@ -51,7 +51,7 @@ impl fmt::Display for Email {
 }
 
 impl TryFrom<&str> for Email {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         Email::new(value)

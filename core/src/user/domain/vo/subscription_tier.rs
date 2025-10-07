@@ -1,7 +1,11 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::{ValidationError, SubscriptionTierErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SubscriptionTier {
@@ -12,13 +16,13 @@ pub enum SubscriptionTier {
 }
 
 impl SubscriptionTier {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         match value.to_lowercase().as_str() {
             "free" => Ok(SubscriptionTier::Free),
             "basic" => Ok(SubscriptionTier::Basic),
             "premium" => Ok(SubscriptionTier::Premium),
             "enterprise" => Ok(SubscriptionTier::Enterprise),
-            _ => Err(SubscriptionTierErrorKind::Value.into()),
+            _ => Err((CategoryError::SubscriptionTier, TypeError::NotSupported).into()),
         }
     }
 
@@ -39,7 +43,7 @@ impl fmt::Display for SubscriptionTier {
 }
 
 impl TryFrom<&str> for SubscriptionTier {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         SubscriptionTier::new(value)

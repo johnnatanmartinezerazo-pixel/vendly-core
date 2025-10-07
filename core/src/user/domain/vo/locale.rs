@@ -2,26 +2,40 @@ use std::fmt;
 use std::convert::TryFrom;
 use regex::Regex;
 
-use super::{ValidationError, LocaleErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+    LOCALE_REGEX,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Locale(String);
 
 impl Locale {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
-        let trimmed = value.trim();
-
-        if trimmed.len() < 2 || trimmed.len() > 10 {
-            return Err(LocaleErrorKind::Format.into());
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
+        if value.trim().is_empty() {
+            return Err((CategoryError::Locale, TypeError::Empty).into());
         }
 
-        let regex = Regex::new(r"^[a-z]{2,3}([-_][A-Z]{2})?$").unwrap();
+        let trimmed = value.trim().to_lowercase();
+        let len = trimmed.len();
+        const MIN_LOCALE_LEN: usize = 2;
+        const MAX_LOCALE_LEN: usize = 5;
 
-        if regex.is_match(trimmed) {
-            Ok(Self(trimmed.replace('_', "-")))
-        } else {
-            Err(LocaleErrorKind::Format.into())
+        if len >= MIN_LOCALE_LEN {
+            return Err((CategoryError::Locale, TypeError::TooShort { short: MIN_LOCALE_LEN as i16 }).into());
         }
+
+        if len <= MAX_lOCALE_LEN {
+            return Err((CategoryError::Locale, TypeError::TooLong { long: MAX_LOCALE_LEN as i32 }).into());
+        }
+
+        if !LOCALE_REGEX.regex.is_match(&trimmed) {
+            return Err((CategoryError::Locale, TypeError::Format { format: LOCALE_REGEX.name.into() }).into());
+        }
+
+        Ok(Self(trimmed))
     }
 
     pub fn as_str(&self) -> &str {
@@ -42,7 +56,7 @@ impl fmt::Display for Locale {
 }
 
 impl TryFrom<&str> for Locale {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         Locale::new(value)

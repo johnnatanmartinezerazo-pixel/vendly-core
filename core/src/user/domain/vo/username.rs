@@ -1,23 +1,21 @@
-use regex::Regex;
 use std::fmt;
 use std::convert::TryFrom;
-use std::sync::LazyLock;
 
-use super::{ValidationError, UsernameErrorKind};
+use crate::user::domain::validations::{
+    CategoryError, TypeError, UserDomainError, USERNAME_REGEX
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Username(String);
 
-static USERNAME_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"^(?=.{6,30}$)[a-z][a-z0-9](?:[._-]?[a-z0-9])*$").unwrap()
-});
+
 
 impl Username {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         let trimmed = value.trim().to_lowercase();
 
-        if !USERNAME_REGEX.is_match(&trimmed) {
-            return Err(UsernameErrorKind::Characters.into());
+        if !USERNAME_REGEX.regex.is_match(&trimmed) {
+            return Err((CategoryError::Email, TypeError::Format { format: USERNAME_REGEX.name.into() }).into());
         }
 
         Ok(Self(trimmed))
@@ -41,7 +39,7 @@ impl fmt::Display for Username {
 }
 
 impl TryFrom<&str> for Username {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         Username::new(value)

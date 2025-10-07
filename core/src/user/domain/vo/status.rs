@@ -1,7 +1,11 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::{ValidationError, UserStatusErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum UserStatus {
@@ -12,13 +16,13 @@ pub enum UserStatus {
 }
 
 impl UserStatus {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         match value.trim() {
             v if v.eq_ignore_ascii_case("pending") => Ok(UserStatus::Pending),
             v if v.eq_ignore_ascii_case("active") => Ok(UserStatus::Active),
             v if v.eq_ignore_ascii_case("suspended") => Ok(UserStatus::Suspended),
             v if v.eq_ignore_ascii_case("deleted") => Ok(UserStatus::Deleted),
-            _ => Err(UserStatusErrorKind::Value.into()),
+            _ => Err((CategoryError::Status, TypeError::NotSupported).into()),
         }
     }
 
@@ -39,7 +43,7 @@ impl fmt::Display for UserStatus {
 }
 
 impl TryFrom<&str> for UserStatus {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         UserStatus::new(value)

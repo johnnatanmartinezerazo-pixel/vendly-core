@@ -1,7 +1,11 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::{ValidationError, GenderErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Gender {
@@ -13,14 +17,14 @@ pub enum Gender {
 }
 
 impl Gender {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         match value.to_lowercase().as_str() {
             "male" => Ok(Gender::Male),
             "female" => Ok(Gender::Female),
             "non_binary" | "non-binary" => Ok(Gender::NonBinary),
             "other" => Ok(Gender::Other),
             "prefer_not_to_say" | "prefer-not-to-say" => Ok(Gender::PreferNotToSay),
-            _ => Err(GenderErrorKind::Value.into()),
+            _ => Err((CategoryError::Gender, TypeError::NotSupported).into()),
         }
     }
 
@@ -42,7 +46,7 @@ impl fmt::Display for Gender {
 }
 
 impl TryFrom<&str> for Gender {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         Gender::new(value)

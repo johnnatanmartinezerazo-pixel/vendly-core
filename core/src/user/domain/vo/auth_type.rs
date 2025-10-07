@@ -1,7 +1,11 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::{ValidationError, AuthTypeErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum AuthType {
@@ -11,12 +15,12 @@ pub enum AuthType {
 }
 
 impl AuthType {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         match value.to_lowercase().as_str() {
             "password" => Ok(AuthType::Password),
             "oidc" => Ok(AuthType::Oidc),
             "saml" => Ok(AuthType::Saml),
-            _ => Err(AuthTypeErrorKind::Value.into()),
+            _ => Err((CategoryError::AuthType, TypeError::NotSupported).into()),
         }
     }
 
@@ -36,7 +40,7 @@ impl fmt::Display for AuthType {
 }
 
 impl TryFrom<&str> for AuthType {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         AuthType::new(value)

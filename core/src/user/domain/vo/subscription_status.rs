@@ -1,7 +1,11 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::{ValidationError, SubscriptionStatusErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SubscriptionStatus {
@@ -13,14 +17,14 @@ pub enum SubscriptionStatus {
 }
 
 impl SubscriptionStatus {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         match value.to_lowercase().as_str() {
             "active" => Ok(SubscriptionStatus::Active),
             "inactive" => Ok(SubscriptionStatus::Inactive),
             "pending" => Ok(SubscriptionStatus::Pending),
             "canceled" | "cancelled" => Ok(SubscriptionStatus::Canceled),
             "expired" => Ok(SubscriptionStatus::Expired),
-            _ => Err(SubscriptionStatusErrorKind::Value.into()),
+            _ => Err((CategoryError::SubscriptionStatus, TypeError::NotSupported).into()),
         }
     }
 
@@ -42,7 +46,7 @@ impl fmt::Display for SubscriptionStatus {
 }
 
 impl TryFrom<&str> for SubscriptionStatus {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         SubscriptionStatus::new(value)

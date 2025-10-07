@@ -1,7 +1,11 @@
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::{ValidationError, ConsentTypeErrorKind};
+use crate::user::domain::validations::{
+    UserDomainError,
+    CategoryError,
+    TypeError,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ConsentType {
@@ -12,13 +16,13 @@ pub enum ConsentType {
 }
 
 impl ConsentType {
-    pub fn new(value: &str) -> Result<Self, ValidationError> {
+    pub fn new(value: &str) -> Result<Self, UserDomainError> {
         match value.to_lowercase().as_str() {
             "terms_of_service" => Ok(ConsentType::TermsOfService),
             "privacy_policy" => Ok(ConsentType::PrivacyPolicy),
             "marketing_emails" => Ok(ConsentType::MarketingEmails),
             "data_retention" => Ok(ConsentType::DataRetention),
-            _ => Err(ConsentTypeErrorKind::Value.into()),
+            _ => Err((CategoryError::ConsentType, TypeError::NotSupported).into()),
         }
     }
 
@@ -39,7 +43,7 @@ impl fmt::Display for ConsentType {
 }
 
 impl TryFrom<&str> for ConsentType {
-    type Error = ValidationError;
+    type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         ConsentType::new(value)
