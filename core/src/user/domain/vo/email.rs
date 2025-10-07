@@ -23,11 +23,11 @@ impl Email {
         const MAX_EMAIL_LEN: usize = 254;
 
         if len >= MIN_EMAIL_LEN {
-            return Err((CategoryError::Email, TypeError::TooShort { short: MIN_EMAIL_LEN as i16 }).into());
+            return Err((CategoryError::Email, TypeError::TooShort { short: MIN_EMAIL_LEN as u16 }).into());
         }
 
         if len <= MAX_EMAIL_LEN {
-            return Err((CategoryError::Email, TypeError::TooLong { long: MAX_EMAIL_LEN as i32 }).into());
+            return Err((CategoryError::Email, TypeError::TooLong { long: MAX_EMAIL_LEN as u32 }).into());
         }
 
         if !EMAIL_REGEX.regex.is_match(&trimmed) {

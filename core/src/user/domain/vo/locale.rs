@@ -24,11 +24,11 @@ impl Locale {
         const MAX_LOCALE_LEN: usize = 5;
 
         if len >= MIN_LOCALE_LEN {
-            return Err((CategoryError::Locale, TypeError::TooShort { short: MIN_LOCALE_LEN as i16 }).into());
+            return Err((CategoryError::Locale, TypeError::TooShort { short: MIN_LOCALE_LEN as u16 }).into());
         }
 
-        if len <= MAX_lOCALE_LEN {
-            return Err((CategoryError::Locale, TypeError::TooLong { long: MAX_LOCALE_LEN as i32 }).into());
+        if len <= MAX_LOCALE_LEN {
+            return Err((CategoryError::Locale, TypeError::TooLong { long: MAX_LOCALE_LEN as u32 }).into());
         }
 
         if !LOCALE_REGEX.regex.is_match(&trimmed) {

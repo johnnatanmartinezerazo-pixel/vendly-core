@@ -23,11 +23,11 @@ impl RoleName {
         const MAX_ROLE_LEN: usize = 50;
 
         if len >= MIN_ROLE_LEN {
-            return Err((CategoryError::Role, TypeError::TooShort { short: MIN_ROLE_LEN as i16 }).into());
+            return Err((CategoryError::Role, TypeError::TooShort { short: MIN_ROLE_LEN as u16 }).into());
         }
 
         if len <= MAX_ROLE_LEN {
-            return Err((CategoryError::Role, TypeError::TooLong { long: MAX_ROLE_LEN as i32 }).into());
+            return Err((CategoryError::Role, TypeError::TooLong { long: MAX_ROLE_LEN as u32 }).into());
         }
 
         if !ROLE_NAME_REGEX.regex.is_match(&trimmed) {
