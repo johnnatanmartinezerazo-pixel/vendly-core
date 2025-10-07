@@ -1,31 +1,21 @@
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-
-use crate::user::domain::vo::Email;
-use super::UserEvent;
+use crate::user::domain::vo::{
+    UserId,
+    Email,
+    OccurredAt,
+};
 
 pub struct UserEmailVerified {
-    user_id: Uuid,
+    user_id: UserId,
     email: Email,
-    occurred_at: DateTime<Utc>,
+    occurred_at: OccurredAt,
 }
 
 impl UserEmailVerified {
-    pub fn new(user_id: Uuid, email: Email) -> Self {
+    pub fn new(user_id: UserId, email: Email) -> Self {
         Self {
             user_id,
             email,
-            occurred_at: Utc::now(),
+            occurred_at: OccurredAt::now(),
         }
-    }
-}
-
-impl UserEvent for UserEmailVerified {
-    fn event_name(&self) -> &'static str {
-        "UserEmailVerified"
-    }
-
-    fn occurred_at(&self) -> DateTime<Utc> {
-        self.occurred_at
     }
 }

@@ -1,31 +1,21 @@
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-
-use crate::user::domain::vo::Username;
-use super::UserEvent;
+use crate::user::domain::vo::{
+    UserId,
+    Username,
+    OccurredAt,
+};
 
 pub struct UserUsernameAssigned {
-    user_id: Uuid,
+    user_id: UserId,
     username: Username,
-    occurred_at: DateTime<Utc>,
+    occurred_at: OccurredAt,
 }
 
 impl UserUsernameAssigned {
-    pub fn new(user_id: Uuid, username: Username) -> Self {
+    pub fn new(user_id: UserId, username: Username) -> Self {
         Self {
             user_id,
             username,
-            occurred_at: Utc::now(),
+            occurred_at: OccurredAt::now(),
         }
-    }
-}
-
-impl UserEvent for UserUsernameAssigned {
-    fn event_name(&self) -> &'static str {
-        "UserUsernameAssigned"
-    }
-
-    fn occurred_at(&self) -> DateTime<Utc> {
-        self.occurred_at
     }
 }

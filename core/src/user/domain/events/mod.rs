@@ -20,4 +20,4 @@ pub use user_external_id_linked::UserExternalIdLinked;
 pub use user_activated::UserActivated;
 pub use user_suspended::UserSuspended;
 pub use user_deleted::UserDeleted;
-pub use user_event::UserEvent;
+pub use user_event::UserDomainEvent;
