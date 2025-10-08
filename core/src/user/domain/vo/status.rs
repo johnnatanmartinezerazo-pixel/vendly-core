@@ -17,7 +17,13 @@ pub enum UserStatus {
 
 impl UserStatus {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        match value.trim() {
+        let trimmed = value.trim();
+        
+        if trimmed.is_empty() {
+            return Err((CategoryError::Status, TypeError::Empty).into());
+        }
+
+        match trimmed.to_lowercase() {
             v if v.eq_ignore_ascii_case("pending") => Ok(UserStatus::Pending),
             v if v.eq_ignore_ascii_case("active") => Ok(UserStatus::Active),
             v if v.eq_ignore_ascii_case("suspended") => Ok(UserStatus::Suspended),

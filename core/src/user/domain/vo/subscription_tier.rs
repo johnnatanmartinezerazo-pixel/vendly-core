@@ -17,7 +17,13 @@ pub enum SubscriptionTier {
 
 impl SubscriptionTier {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        match value.to_lowercase().as_str() {
+        let trimmed = value.trim();
+        
+        if trimmed.is_empty() {
+            return Err((CategoryError::SubscriptionTier, TypeError::Empty).into());
+        }
+
+        match trimmed.to_lowercase().as_str() {
             "free" => Ok(SubscriptionTier::Free),
             "basic" => Ok(SubscriptionTier::Basic),
             "premium" => Ok(SubscriptionTier::Premium),

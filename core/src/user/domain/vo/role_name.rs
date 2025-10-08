@@ -13,11 +13,13 @@ pub struct RoleName(String);
 
 impl RoleName {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        if value.trim().is_empty() {
+
+        let trimmed = value.trim().to_lowercase();
+        
+        if trimmed.is_empty() {
             return Err((CategoryError::Role, TypeError::Empty).into());
         }
 
-        let trimmed = value.trim().to_lowercase();
         let len = trimmed.len();
         const MIN_ROLE_LEN: usize = 3;
         const MAX_ROLE_LEN: usize = 50;
@@ -30,11 +32,11 @@ impl RoleName {
             return Err((CategoryError::Role, TypeError::TooLong { long: MAX_ROLE_LEN as u32 }).into());
         }
 
-        if !ROLE_NAME_REGEX.regex.is_match(&trimmed) {
+        if !ROLE_NAME_REGEX.regex.is_match( trimmed) {
             return Err((CategoryError::Role, TypeError::Format { format: ROLE_NAME_REGEX.name.into() }).into());
         }
 
-        Ok(Self(trimmed.to_lowercase()))
+        Ok(Self(trimmed))
     }
 
     pub fn as_str(&self) -> &str {

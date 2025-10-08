@@ -1,6 +1,8 @@
 use std::fmt;
 use std::convert::TryFrom;
 
+use sea_orm::TryIntoModel;
+
 use crate::user::domain::validations::{
     UserDomainError,
     CategoryError,
@@ -16,7 +18,13 @@ pub enum AuthType {
 
 impl AuthType {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        match value.to_lowercase().as_str() {
+        let trimmed = value.trim().to_lowercase();
+
+        if trimmed.is_empty() {
+            return Err((CategoryError::AuthType, TypeError::Empty).into());
+        }
+
+        match trimmed {
             "password" => Ok(AuthType::Password),
             "oidc" => Ok(AuthType::Oidc),
             "saml" => Ok(AuthType::Saml),

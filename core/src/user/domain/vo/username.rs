@@ -14,8 +14,12 @@ impl Username {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
         let trimmed = value.trim().to_lowercase();
 
+        if trimmed.is_empty() {
+            return Err((CategoryError::Username, TypeError::Empty).into());
+        }
+
         if !USERNAME_REGEX.regex.is_match(&trimmed) {
-            return Err((CategoryError::Email, TypeError::Format { format: USERNAME_REGEX.name.into() }).into());
+            return Err((CategoryError::Username, TypeError::Format { format: USERNAME_REGEX.name.into() }).into());
         }
 
         Ok(Self(trimmed))

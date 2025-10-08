@@ -18,7 +18,13 @@ pub enum SubscriptionStatus {
 
 impl SubscriptionStatus {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        match value.to_lowercase().as_str() {
+        let trimmed = value.trim();
+        
+        if trimmed.is_empty() {
+            return Err((CategoryError::SubscriptionStatus, TypeError::Empty).into());
+        }
+
+        match trimmed.to_lowercase().as_str() {
             "active" => Ok(SubscriptionStatus::Active),
             "inactive" => Ok(SubscriptionStatus::Inactive),
             "pending" => Ok(SubscriptionStatus::Pending),

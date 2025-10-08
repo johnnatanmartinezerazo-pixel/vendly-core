@@ -13,11 +13,12 @@ pub struct Email(String);
 
 impl Email {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        if value.trim().is_empty() {
+        let trimmed = value.trim().to_lowercase;
+        
+        if trimmed.is_empty() {
             return Err((CategoryError::Email, TypeError::Empty).into());
         }
 
-        let trimmed = value.trim().to_lowercase();
         let len = trimmed.len();
         const MIN_EMAIL_LEN: usize = 6;
         const MAX_EMAIL_LEN: usize = 254;
@@ -37,7 +38,6 @@ impl Email {
         Ok(Self(trimmed))
     }
 }
-
 impl AsRef<str> for Email {
     fn as_ref(&self) -> &str {
         &self.0
