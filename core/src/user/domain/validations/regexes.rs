@@ -6,29 +6,29 @@ pub struct ValidationRule {
     pub regex: Regex,
 }
 
-pub static EMAIL_REGEX: LazyLock<Regex> = LazyLock::new(|| ValidationRule {
+pub static EMAIL_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
     name: "EMAIL_REGEX",
     regex: Regex::new(
         r"^[A-Za-z0-9](?:[A-Za-z0-9._-]{2,63}[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\.[A-Za-z]{2,24}$"
     ).unwrap(),
 });
 
-pub static PHONE_REGEX: LazyLock<Regex> = LazyLock::new(|| ValidationRule {
+pub static PHONE_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
     name: "PHONE_REGEX",
     regex: Regex::new(r"^\+[0-9]{7,15}$").unwrap()
 });
 
-pub static LOCALE_REGEX: LazyLock<Regex> = LazyLock::new(|| ValidationRule {
+pub static LOCALE_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
     name: "LOCALE_REGEX",
     regex: Regex::new(r"^[a-z]{2,3}(-[A-Z]{2})?$").unwrap()
 });
 
-pub static ROLE_NAME_REGEX: LazyLock<Regex> = LazyLock::new(|| ValidationRule {
+pub static ROLE_NAME_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
     name: "ROLE_NAME_REGEX",
     regex: Regex::new(r"^[a-z][a-z0-9_-]{2,49}$").unwrap()
 });
 
-pub static USERNAME_REGEX: LazyLock<Regex> = LazyLock::new(|| ValidationRule {
+pub static USERNAME_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
     name: "USERNAME_REGEX",
     regex: Regex::new(r"^(?=.{6,30}$)[a-z][a-z0-9](?:[._-]?[a-z0-9])*$").unwrap()
 });
