@@ -22,11 +22,11 @@ impl RoleName {
         const MIN_ROLE_LEN: usize = 3;
         const MAX_ROLE_LEN: usize = 50;
 
-        if len >= MIN_ROLE_LEN {
+        if len < MIN_ROLE_LEN {
             return Err((CategoryError::Role, TypeError::TooShort { short: MIN_ROLE_LEN as u16 }).into());
         }
 
-        if len <= MAX_ROLE_LEN {
+        if len > MAX_ROLE_LEN {
             return Err((CategoryError::Role, TypeError::TooLong { long: MAX_ROLE_LEN as u32 }).into());
         }
 

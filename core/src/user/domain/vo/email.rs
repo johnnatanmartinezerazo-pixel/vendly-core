@@ -22,11 +22,11 @@ impl Email {
         const MIN_EMAIL_LEN: usize = 6;
         const MAX_EMAIL_LEN: usize = 254;
 
-        if len >= MIN_EMAIL_LEN {
+        if len < MIN_EMAIL_LEN {
             return Err((CategoryError::Email, TypeError::TooShort { short: MIN_EMAIL_LEN as u16 }).into());
         }
 
-        if len <= MAX_EMAIL_LEN {
+        if len > MAX_EMAIL_LEN {
             return Err((CategoryError::Email, TypeError::TooLong { long: MAX_EMAIL_LEN as u32 }).into());
         }
 

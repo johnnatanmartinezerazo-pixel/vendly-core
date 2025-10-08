@@ -18,11 +18,11 @@ impl Phone {
         const MIN_PHONE_LEN: usize = 6;
         const MAX_PHONE_LEN: usize = 16;
 
-        if len >= MIN_PHONE_LEN {
+        if len < MIN_PHONE_LEN {
             return Err((CategoryError::Phone, TypeError::TooShort { short: MIN_PHONE_LEN as u16 }).into());
         }
 
-        if len <= MAX_PHONE_LEN {
+        if len > MAX_PHONE_LEN {
             return Err((CategoryError::Phone, TypeError::TooLong { long: MAX_PHONE_LEN as u32 }).into());
         }
 

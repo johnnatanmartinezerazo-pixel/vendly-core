@@ -23,11 +23,11 @@ impl Locale {
         const MIN_LOCALE_LEN: usize = 2;
         const MAX_LOCALE_LEN: usize = 5;
 
-        if len >= MIN_LOCALE_LEN {
+        if len < MIN_LOCALE_LEN {
             return Err((CategoryError::Locale, TypeError::TooShort { short: MIN_LOCALE_LEN as u16 }).into());
         }
 
-        if len <= MAX_LOCALE_LEN {
+        if len > MAX_LOCALE_LEN {
             return Err((CategoryError::Locale, TypeError::TooLong { long: MAX_LOCALE_LEN as u32 }).into());
         }
 

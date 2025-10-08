@@ -22,11 +22,11 @@ impl ExternalId {
         const MIN_EXTERNALID_LEN: usize = 16;
         const MAX_EXTERNALID_LEN: usize = 254;
 
-        if len >= MIN_EXTERNALID_LEN {
+        if len < MIN_EXTERNALID_LEN {
             return Err((CategoryError::ExternalId, TypeError::TooShort { short: MIN_EXTERNALID_LEN as u16}).into());
         }
 
-        if len <= MAX_EXTERNALID_LEN {
+        if len > MAX_EXTERNALID_LEN {
             return Err((CategoryError::ExternalId, TypeError::TooLong { long: MAX_EXTERNALID_LEN as u32 }).into());
         }
 
