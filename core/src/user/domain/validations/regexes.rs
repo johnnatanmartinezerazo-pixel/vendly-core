@@ -13,9 +13,14 @@ pub static EMAIL_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRu
     ).unwrap(),
 });
 
-pub static PHONE_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
-    name: "PHONE_REGEX",
-    regex: Regex::new(r"^\+[0-9]{7,15}$").unwrap()
+pub static PHONE_CONTRY_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
+    name: "COUNTRY_CODE(+XX)",
+    regex: Regex::new(r"^\+\d{1,3}[0-9]$").unwrap()
+});
+
+pub static PHONE_NUMBER_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
+    name: "LOCAL_NUMBER(only digits)",
+    regex: Regex::new(r"^\d{6,14}[0-9]$").unwrap()
 });
 
 pub static LOCALE_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
