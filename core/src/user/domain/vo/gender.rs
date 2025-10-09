@@ -18,15 +18,15 @@ pub enum Gender {
 
 impl Gender {
 
-    
+
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
         let trimmed = value.trim();
-        
+
         if trimmed.is_empty() {
             return Err((CategoryError::Gender, TypeError::Empty).into());
         }
 
-        match trimmed.to_lowercase().as_str() {
+        match trimmed.to_ascii_lowercase().as_str() {
             "male" => Ok(Gender::Male),
             "female" => Ok(Gender::Female),
             "non_binary" | "non-binary" => Ok(Gender::NonBinary),

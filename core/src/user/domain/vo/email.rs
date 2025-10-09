@@ -13,8 +13,8 @@ pub struct Email(String);
 
 impl Email {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        let trimmed = value.trim().to_lowercase;
-        
+        let trimmed = value.trim().to_ascii_lowercase();
+
         if trimmed.is_empty() {
             return Err((CategoryError::Email, TypeError::Empty).into());
         }

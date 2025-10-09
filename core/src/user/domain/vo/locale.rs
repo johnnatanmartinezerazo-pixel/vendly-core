@@ -1,6 +1,5 @@
 use std::fmt;
 use std::convert::TryFrom;
-use regex::Regex;
 
 use crate::user::domain::validations::{
     UserDomainError,
@@ -14,8 +13,8 @@ pub struct Locale(String);
 
 impl Locale {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        let trimmed = value.trim().to_lowercase();
-        
+        let trimmed = value.trim().to_ascii_lowercase();
+
         if trimmed.is_empty() {
             return Err((CategoryError::Locale, TypeError::Empty).into());
         }

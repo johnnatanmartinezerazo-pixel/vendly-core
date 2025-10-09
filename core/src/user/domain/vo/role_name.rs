@@ -14,8 +14,8 @@ pub struct RoleName(String);
 impl RoleName {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
 
-        let trimmed = value.trim().to_lowercase();
-        
+        let trimmed = value.trim();
+
         if trimmed.is_empty() {
             return Err((CategoryError::Role, TypeError::Empty).into());
         }
@@ -36,7 +36,7 @@ impl RoleName {
             return Err((CategoryError::Role, TypeError::Format { format: ROLE_NAME_REGEX.name.into() }).into());
         }
 
-        Ok(Self(trimmed))
+        Ok(Self(trimmed.to_ascii_lowercase()))
     }
 
     pub fn as_str(&self) -> &str {

@@ -17,13 +17,13 @@ pub enum ConsentType {
 
 impl ConsentType {
     pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        let trimmed = value.trim().to_lowercase();
-        
+        let trimmed = value.trim();
+
         if trimmed.is_empty() {
-            return Err((CategoryError::AuthType, TypeError::Empty).into());
+            return Err((CategoryError::ConsentType, TypeError::Empty).into());
         }
 
-        match trimmed {
+        match trimmed.to_ascii_lowercase().as_str() {
             "terms_of_service" => Ok(ConsentType::TermsOfService),
             "privacy_policy" => Ok(ConsentType::PrivacyPolicy),
             "marketing_emails" => Ok(ConsentType::MarketingEmails),
