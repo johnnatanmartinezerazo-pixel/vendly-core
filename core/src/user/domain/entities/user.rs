@@ -1,6 +1,3 @@
-use anyhow::Ok;
-
-use crate::user;
 use crate::user::domain::vo::{
     UserId,
     ExternalId,
@@ -121,6 +118,15 @@ impl User {
         self.deleted_at.as_ref()
     }
 
+    pub fn link_external_id(&mut self, external_id: ExternalId) -> Result<(), UserDomainError> {
+        self.updated_at = OccurredAt::now();
+
+        let event = UserExternalIdLinked::new(self.id.clone(), external_id);
+        self.record_event(UserDomainEvent::ExternalIdLinkend(event));
+
+        Ok(())
+    }
+
     pub fn update_email(&mut self, new_email: Email) -> Result<(), UserDomainError> {
         let old_email = self.email.clone();
 
@@ -163,12 +169,12 @@ impl User {
             return Err((CategoryError::Phone, TypeError::AlreadyVerified).into());
         }
 
-        match self.phone {
-            Some(_) => {
+        match self.phone.clone() {
+            Some(phone) => {
                 self.phone_verified = true;
                 self.updated_at = OccurredAt::now();
 
-                let event = UserPhoneVerified::new(self.id.clone(), self.phone.clone());
+                let event = UserPhoneVerified::new(self.id.clone(), phone);
                 self.record_event(UserDomainEvent::PhoneVerified(event));
 
                 Ok(())
@@ -182,8 +188,10 @@ impl User {
             UserStatus::Pending | UserStatus::Suspended => {
                 self.status = UserStatus::Active;
                 self.updated_at = OccurredAt::now();
+
                 let event = UserActivated::new(self.id.clone(), self.status.clone());
                 self.record_event(UserDomainEvent::Activated(event));
+
                 Ok(())
             }
             _ => Err((CategoryError::Status, TypeError::Transition { from: self.status.clone(), to: UserStatus::Active }).into()),
@@ -195,6 +203,7 @@ impl User {
             UserStatus::Active => {
                 self.status = UserStatus::Suspended;
                 self.updated_at = OccurredAt::now();
+
                 let event = UserSuspended::new(self.id.clone(), self.status.clone());
                 self.record_event(UserDomainEvent::Suspended(event));
 
@@ -210,6 +219,7 @@ impl User {
                 self.status = UserStatus::Deleted;
                 self.deleted_at = Some(OccurredAt::now());
                 self.updated_at = OccurredAt::now();
+
                 let event = UserDeleted::new(self.id.clone(), self.status.clone());
                 self.record_event(UserDomainEvent::Deleted(event));
 
@@ -220,33 +230,20 @@ impl User {
     }
 
     pub fn assign_username(&mut self, username: Username) -> Result<(), UserDomainError> {
-        self.username = Some(username);
         self.updated_at = OccurredAt::now();
-        let event = UserUsernameAssigned::new(self.id.clone(), self.username.clone());
+
+        let event = UserUsernameAssigned::new(self.id.clone(), username);
         self.record_event(UserDomainEvent::UsernameAssigned(event));
 
         Ok(())
     }
 
     pub fn assign_phone(&mut self, phone: Phone) -> Result<(), UserDomainError> {
-        self.phone = Some(phone);
         self.phone_verified = false;
         self.updated_at = OccurredAt::now();
-        self.pending_events.push(Box::new(UserPhoneAssigned::new(
-            self.id.clone(),
-            self.phone.clone().unwrap(),
-        )));
-        Ok(())
-    }
 
-    pub fn link_external_id(&mut self, external_id: ExternalId) -> Result<(), UserDomainError> {
-        self.external_id = Some(external_id);
-        self.updated_at = OccurredAt::now();
-
-        self.pending_events.push(Box::new(UserExternalIdLinked::new(
-            self.id.clone(),
-            self.external_id.clone().unwrap(),
-        )));
+        let event = UserPhoneAssigned::new(self.id.clone(), phone);
+        self.record_event(UserDomainEvent::PhoneAssigned(event));
 
         Ok(())
     }
