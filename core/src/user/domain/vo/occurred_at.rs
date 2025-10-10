@@ -34,4 +34,3 @@ impl TryFrom<&str> for OccurredAt {
         }
     }
 }
-
