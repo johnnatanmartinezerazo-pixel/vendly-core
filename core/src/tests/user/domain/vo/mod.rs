@@ -11,3 +11,5 @@ pub mod test_subscription_tier;
 pub mod test_timezone;
 pub mod test_user_status;
 pub mod test_username;
+pub mod test_user_id;
+pub mod test_occurred_at;
