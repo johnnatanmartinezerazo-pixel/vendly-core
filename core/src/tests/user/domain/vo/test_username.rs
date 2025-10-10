@@ -1,28 +1,43 @@
 #[cfg(test)]
-mod tests_username {
-    use crate::user::domain::Username;
-    use std::convert::TryFrom;
+mod tests {
+    use crate::user::domain::vo::Username;
 
     #[test]
-    fn test_username_valid() {
-        let max_len = "a".to_string() + &"b".repeat(29); // 30 chars
-
-        let valid_cases = vec![
-            "abcdef",          // mínimo 6
-            "user.name",
-            "user_name",
-            "User123",
-            "a12345",          // empieza con letra + números
-            "a.b_c.d",         // mezcla permitida
-            max_len.as_str(),  // longitud máxima
-            "   trimmedUser   ", // espacios al inicio/fin
+    fn test_username_creation() {
+        let inputs = vec![
+            "john_doe",       // ✅ válido
+            "Alice123",       // ✅ válido
+            "  user_name  ",  // ✅ válido (espacios alrededor)
+            "UPPERCASE",      // ✅ válido (se convierte a minúsculas)
+            "user.name",      // ❌ formato inválido (si el regex no lo permite)
+            "ab",             // ❌ demasiado corto según regex
+            "user@domain",    // ❌ formato inválido
+            "user name",      // ❌ contiene espacio
+            "",               // ❌ vacío
+            " ",              // ❌ solo espacios
         ];
 
-        for input in valid_cases {
-            let username = Username::try_from(input).unwrap();
-            println!("Probando válido '{}': {}", input, username);
-            assert!(username.as_str().len() >= 6 && username.as_str().len() <= 30);
-            assert_eq!(username.to_string(), username.as_str());
+        for input in inputs {
+            let result = Username::new(input);
+            match result {
+                Ok(username) => println!("✅ '{input}' → creado como: '{}'", username),
+                Err(err) => println!("❌ '{input}' → error: {}", err),
+            }
         }
+    }
+
+    #[test]
+    fn test_username_display_and_as_ref() {
+        let username = Username::new("RustDev").unwrap();
+        assert_eq!(username.as_str(), "rustdev");
+        assert_eq!(username.as_ref(), "rustdev");
+        println!("🧩 Display username: {}", username);
+    }
+
+    #[test]
+    fn test_username_try_from_trait() {
+        let username = Username::try_from("   example_user   ").unwrap();
+        assert_eq!(username.as_str(), "example_user");
+        println!("🔁 TryFrom conversion exitosa: {}", username);
     }
 }

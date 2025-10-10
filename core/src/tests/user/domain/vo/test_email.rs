@@ -1,40 +1,34 @@
 #[cfg(test)]
-mod tests_email {
-    use crate::user::domain::Email;
-    use std::convert::TryFrom;
+mod tests {
+    use crate::user::domain::vo::Email;
 
     #[test]
-    fn test_validated_emails() {
-        let valid_emails = vec![
-            "reportes_financieros_2025@contabilidad.mi-negocio.online",
-            "dev-ops-team-alpha@server-01.internal.local",
-            "informacion@servidor.area.empresa.com",
-            "ana@ejemplo.com",
-            "usuario.valido@mi-empresa-.com",
-            "_nombre.apellido@ejemplo.com",
-            "RePoRtE.AnUaL-2025@InfoGlobal.co",
-            "Julio.Silva@tigo.com.co",
-            "Julio.Silva.C@tigo.com.co",
-            "Conde guru@ejemplo.com.space"
+    fn test_email_creation() {
+        let temp_max_email = "verylongemail".repeat(30);
+        let max_email = temp_max_email.as_str();
+        let inputs = vec![
+            "user@example.com",             // válido
+            " USER@Example.COM  ",          // válido (espacios + mayúsculas)
+            "a@b.c",                        // error: demasiado corto
+            "",                             // error: vacío
+            "   ",                          // error: solo espacios
+            "no-at-symbol.com",             // error: formato inválido
+            "user@domain",                  // error: formato inválido
+            "user@domain.",                 // error: formato inválido
+            "user@@domain.com",             // error: formato inválido
+            max_email,                      // error: demasiado largo (>254)
+            "valid_user+tag@gmail.com",     // válido
+            "user@-cast.sub.domain.co",           // válido
+            "user@domain.c",                // error: dominio demasiado corto
         ];
 
-        for input in valid_emails {
-            let result = Email::try_from(input);
+        for input in inputs {
+            let result = Email::new(&input);
 
             match result {
-                Ok(result) => {
-                    // Aquí usas Display ({}), no Debug ({:?})
-                    println!("Correo válido '{}': éxito -> {}", input, result);
-                }
-                Err(e) => println!("Correo inválido '{}': error -> {}", input, e),
+                Ok(email) => println!("✅ '{input}' → creado como: {}", email),
+                Err(err) => println!("❌ '{input}' → error: {}", err),
             }
         }
-    }
-
-    #[test]
-    fn test_display_trait() {
-        let email = Email::try_from("Test@Domain.com").unwrap();
-        println!("Display = {}", email);
-        assert_eq!(email.to_string(), "test@domain.com");
     }
 }

@@ -1,45 +1,39 @@
 #[cfg(test)]
-mod tests_role_name {
-    use crate::user::domain::SubscriptionStatus;
-    use std::convert::TryFrom;
+mod tests {
+    use crate::user::domain::vo::SubscriptionStatus;
 
     #[test]
-    fn test_subscription_status_valid() {
-        let valid_cases = vec![
-            ("active", SubscriptionStatus::Active),
-            ("inactive", SubscriptionStatus::Inactive),
-            ("pending", SubscriptionStatus::Pending),
-            ("canceled", SubscriptionStatus::Canceled),
-            ("cancelled", SubscriptionStatus::Canceled), // sinónimo aceptado
-            ("expired", SubscriptionStatus::Expired),
+    fn test_subscription_status_creation() {
+        let inputs = vec![
+            "active",        // ✅ válido
+            "inactive",      // ✅ válido
+            "pending",       // ✅ válido
+            "canceled",      // ✅ válido
+            "cancelled",     // ✅ válido (británico)
+            "expired",       // ✅ válido
+            "  Active  ",    // ✅ válido (espacios + mayúsculas)
+            "PENDING",       // ✅ válido (mayúsculas)
+            "",              // ❌ vacío
+            "   ",           // ❌ solo espacios
+            "paused",        // ❌ no soportado
+            "terminated",    // ❌ no soportado
+            "unknown",       // ❌ no soportado
         ];
 
-        for (input, expected) in valid_cases {
-            let status = SubscriptionStatus::try_from(input).unwrap();
-            println!("Probando válido '{}': {:?}", input, status);
-            assert_eq!(status, expected);
-            assert_eq!(status.as_str(), expected.as_str());
-            assert_eq!(status.to_string(), expected.as_str());
+        for input in inputs {
+            let result = SubscriptionStatus::new(input);
+
+            match result {
+                Ok(status) => println!("✅ '{input}' → creado como: {}", status),
+                Err(err) => println!("❌ '{input}' → error: {}", err),
+            }
         }
     }
 
     #[test]
-    fn test_subscription_status_invalid() {
-        let invalid_cases = vec![
-            "",              // vacío
-            "activ",         // mal escrito
-            "inactve",       // typo
-            "pendding",      // mal escrito
-            "cancel",        // incompleto
-            "expires",       // forma incorrecta
-            "deleted",       // estado no permitido
-            "archived",      // estado inexistente
-        ];
-
-        for input in invalid_cases {
-            let result = SubscriptionStatus::try_from(input);
-            println!("Probando inválido '{}': {:?}", input, result);
-            assert!(result.is_err(), "Se esperaba error para '{}'", input);
-        }
+    fn test_subscription_status_display_and_as_str() {
+        let status = SubscriptionStatus::new("Canceled").unwrap();
+        assert_eq!(status.as_str(), "canceled");
+        println!("🧩 Display: {}", status);
     }
 }

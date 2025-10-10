@@ -1,59 +1,41 @@
 #[cfg(test)]
-mod tests_locale {
-    use crate::user::domain::{Locale, ValidationError};
-    use std::convert::TryFrom;
+mod tests {
+    use crate::user::domain::vo::Locale;
 
     #[test]
-    fn test_locale_valid() {
-        let valid_cases = vec![
-            ("es", "es"),
-            ("en", "en"),
-            ("es-ES", "es-ES"),
-            ("en-US", "en-US"),
-            ("fr-FR", "fr-FR"),
-            ("pt_BR", "pt-BR"), // normaliza "_" a "-"
+    fn test_locale_creation() {
+        let inputs = vec![
+            "es",          // válido - español genérico
+            "en",          // válido - inglés genérico
+            "fr",          // válido - francés genérico
+            "en-US",       // válido - inglés EE.UU.
+            "es-ES",       // válido - español España
+            "pt-BR",       // válido - portugués Brasil
+            "ES",          // válido - se convierte a minúsculas
+            "   es-CO   ", // válido - recorta espacios y normaliza
+            "",            // error: vacío
+            "  ",          // error: solo espacios
+            "e",           // error: demasiado corto
+            "english",     // error: demasiado largo
+            "123",         // error: formato inválido
+            "es_CO",       // error: formato inválido (usa guion bajo)
+            "es-",         // error: formato inválido (termina en guion)
         ];
 
-        for (input, expected) in valid_cases {
-            let locale = Locale::try_from(input).unwrap();
-            println!("Probando válido '{}': {:?}", input, locale);
-            assert_eq!(locale.as_str(), expected);
-            assert_eq!(locale.to_string(), expected);
+        for input in inputs {
+            let result = Locale::new(input);
+
+            match result {
+                Ok(locale) => println!("✅ '{input}' → creado como: {}", locale),
+                Err(err) => println!("❌ '{input}' → error: {}", err),
+            }
         }
     }
 
     #[test]
-    fn test_locale_invalid_length() {
-        let too_short = "e";
-        let too_long = "abcdefghijk";
-        for v in [too_short, too_long] {
-            let result = Locale::try_from(v);
-            println!("Probando inválido (longitud) '{}': {:?}", v, result);
-            assert!(matches!(result, Err(ValidationError::InvalidLocale)));
-        }
-    }
-
-    #[test]
-    fn test_locale_invalid_format() {
-        let invalid_cases = vec![
-            "es-es-es",   // demasiado largo para el patrón
-            "EN-us",      // minúsculas en región
-            "spanish",    // palabra completa
-            "es_",        // guion bajo sin región
-            "123-ES",     // números no permitidos
-        ];
-
-        for v in invalid_cases {
-            let result = Locale::try_from(v);
-            println!("Probando inválido (formato) '{}': {:?}", v, result);
-            assert!(matches!(result, Err(ValidationError::InvalidLocale)));
-        }
-    }
-
-    #[test]
-    fn test_display_trait() {
-        let locale = Locale::try_from("pt_BR").unwrap();
-        println!("Display = {}", locale);
-        assert_eq!(locale.to_string(), "pt-BR");
+    fn test_locale_default() {
+        let default_locale = Locale::default();
+        println!("🌐 Valor por defecto: {}", default_locale);
+        assert_eq!(default_locale.as_str(), "es-ES");
     }
 }

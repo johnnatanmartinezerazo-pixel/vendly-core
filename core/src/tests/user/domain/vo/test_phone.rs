@@ -1,46 +1,65 @@
 #[cfg(test)]
-mod tests_phone {
-    use crate::user::domain::Phone;
-    use std::convert::TryFrom;
+mod tests {
+    use crate::user::domain::vo::Phone;
 
     #[test]
-    fn test_validated_phones() {
-        let valid_phones = vec![
-            "+573001234567",
-            "+34123456789",
-            "+441632960961",
-            "+4915123456789",
-            "+5511987654321",
-            "+1 2025550192",
-            "1 2025550192",
-            "+44 7912345678",
-            "202-555-0192",
-            "202.555.0192",
-            "(202) 555-0192",
-            "2025550192",
-            "+52 5512345678",
-            "+34 61234567",
-            "+(34) 612-34-56-78",
-            "+593 612345678"
+    fn test_phone_creation_with_parts() {
+        let cases = vec![
+            ("+57", "3201234567"),    // ✅ válido (Colombia)
+            ("+1", "2025550147"),     // ✅ válido (EE.UU.)
+            ("+44", "7700901234"),    // ✅ válido (Reino Unido)
+            ("57", "3201234567"),     // ✅ válido (sin '+')
+            ("+49", "15123456789"),   // ✅ válido (Alemania)
+            ("+", "1234567"),         // ❌ código país inválido
+            ("+1234", "9876543210"),  // ❌ país demasiado largo (>3)
+            ("+57", "123"),           // ❌ número demasiado corto (<6)
+            ("+57", "123456789012345"), // ❌ número demasiado largo (>14)
+            ("+57", "12A45678"),      // ❌ formato inválido (letra)
+            ("", ""),                 // ❌ ambos vacíos
+            ("  ", "  "),             // ❌ espacios
         ];
 
-        for input in valid_phones {
-            let result = Phone::try_from(input);
+        for (cc, num) in cases {
+            let result = Phone::new(cc, num);
 
             match result {
-                Ok(result) => {
-                    // Aquí usas Display ({}), no Debug ({:?})
-                    println!("Teléfono válido '{}': éxito -> {}", input, result);
-                }
-                Err(e) => println!("Teléfono inválido '{}': error -> {}", input, e),
+                Ok(phone) => println!("✅ '{}' '{}' → creado como: {}", cc, num, phone),
+                Err(err) => println!("❌ '{}' '{}' → error: {}", cc, num, err),
             }
         }
     }
 
     #[test]
-    fn test_display_trait() {
-        let phone = Phone::try_from("+573001234567").unwrap();
-        println!("Display = {}", phone);
-        assert_eq!(phone.to_string(), "+573001234567");
+    fn test_phone_creation_from_full() {
+        let inputs = vec![
+            "+573201234567",   // ✅ válido
+            "+12025550147",    // ✅ válido
+            "+447700901234",   // ✅ válido
+            " +57 320 123 4567 ", // ✅ válido con espacios
+            "+123456",         // ✅ válido (mínimo aceptable)
+            "573201234567",    // ❌ falta '+'
+            "+57320",          // ❌ demasiado corto
+            "+5732012345678901", // ❌ demasiado largo
+            "+57ABC1234",      // ❌ formato inválido
+            "",                // ❌ vacío
+        ];
+
+        for input in inputs {
+            let result = Phone::from_full(input);
+
+            match result {
+                Ok(phone) => println!("✅ '{input}' → creado como: {}", phone.as_full()),
+                Err(err) => println!("❌ '{input}' → error: {}", err),
+            }
+        }
+    }
+
+    #[test]
+    fn test_phone_display_and_accessors() {
+        let phone = Phone::new("+57", "3201234567").unwrap();
+        assert_eq!(phone.country_code(), "+57");
+        assert_eq!(phone.number(), "3201234567");
+        assert_eq!(phone.as_full(), "+573201234567");
+        println!("📱 Display: {}", phone);
     }
 }

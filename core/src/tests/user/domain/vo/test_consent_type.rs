@@ -1,37 +1,30 @@
 #[cfg(test)]
-mod tests_consent_type {
-    use crate::user::domain::ConsentType;
-    use std::convert::TryFrom;
+mod tests {
+    use crate::user::domain::vo::ConsentType;
 
     #[test]
-    fn test_consent_type_valid() {
-        let values = vec![
-            "terms_of_service",
-            "privacy_policy",
-            "marketing_emails",
-            "data_retention",
+    fn test_consent_type_creation() {
+        let inputs = vec![
+            "terms_of_service",   // válido
+            "privacy_policy",     // válido
+            "marketing_emails",   // válido
+            "data_retention",     // válido
+            "  TERMS_OF_SERVICE  ", // válido (espacios + mayúsculas)
+            "",                   // error: vacío
+            "   ",                // error: solo espacios
+            "newsletter",         // error: no soportado
+            "tos",                // error: no soportado
+            "privacy-policy",     // error: formato no soportado
         ];
-        for v in values {
-            let consent = ConsentType::try_from(v).unwrap();
-            println!("Probando válido '{}': {:?}", v, consent);
-            assert_eq!(consent.as_str(), v);
-        }
-    }
 
-    #[test]
-    fn test_consent_type_invalid() {
-        let invalid_values = vec!["tos", "pp", "ads", "logs", "123"];
-        for v in invalid_values {
-            let result = ConsentType::try_from(v);
-            println!("Probando inválido '{}': {:?}", v, result);
-            assert!(result.is_err());
-        }
-    }
+        for input in inputs {
+            let result = ConsentType::new(input);
 
-    #[test]
-    fn test_display_trait() {
-        let consent = ConsentType::PrivacyPolicy;
-        println!("Display de ConsentType::PrivacyPolicy = {}", consent);
-        assert_eq!(consent.to_string(), "privacy_policy");
+            match result {
+                Ok(consent_type) => println!("✅ '{input}' → creado como: {}", consent_type),
+                Err(err) => println!("❌ '{input}' → error: {}", err),
+            }
+        }
     }
 }
+

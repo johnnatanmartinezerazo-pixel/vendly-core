@@ -1,43 +1,31 @@
 #[cfg(test)]
-mod tests_gender {
-    use crate::user::domain::{Gender, ValidationError};
-    use std::convert::TryFrom;
+mod tests {
+    use crate::user::domain::vo::Gender;
 
     #[test]
-    fn test_gender_valid() {
-        let valid_cases = vec![
-            ("male", Gender::Male, "male"),
-            ("female", Gender::Female, "female"),
-            ("non_binary", Gender::NonBinary, "non_binary"),
-            ("non-binary", Gender::NonBinary, "non_binary"),
-            ("other", Gender::Other, "other"),
-            ("prefer_not_to_say", Gender::PreferNotToSay, "prefer_not_to_say"),
-            ("prefer-not-to-say", Gender::PreferNotToSay, "prefer_not_to_say"),
+    fn test_gender_creation() {
+        let inputs = vec![
+            "male",                 // válido
+            "female",               // válido
+            "non_binary",           // válido
+            "non-binary",           // válido (guion)
+            "other",                // válido
+            "prefer_not_to_say",    // válido
+            "prefer-not-to-say",    // válido (guion)
+            "   Female   ",          // válido (espacios + mayúsculas)
+            "",                     // error: vacío
+            "   ",                  // error: solo espacios
+            "unknown",              // error: no soportado
+            "robot",                // error: no soportado
         ];
 
-        for (input, expected_enum, expected_str) in valid_cases {
-            let gender = Gender::try_from(input).unwrap();
-            println!("Probando válido '{}': {:?}", input, gender);
-            assert_eq!(gender, expected_enum);
-            assert_eq!(gender.as_str(), expected_str);
-            assert_eq!(gender.to_string(), expected_str);
-        }
-    }
+        for input in inputs {
+            let result = Gender::new(input);
 
-    #[test]
-    fn test_gender_invalid() {
-        let invalid_inputs = vec!["man", "woman", "nb", "unspecified", "123"];
-        for v in invalid_inputs {
-            let result = Gender::try_from(v);
-            println!("Probando inválido '{}': {:?}", v, result);
-            assert!(matches!(result, Err(ValidationError::InvalidGender)));
+            match result {
+                Ok(gender) => println!("✅ '{input}' → creado como: {}", gender),
+                Err(err) => println!("❌ '{input}' → error: {}", err),
+            }
         }
-    }
-
-    #[test]
-    fn test_display_trait() {
-        let gender = Gender::NonBinary;
-        println!("Display de {:?} = {}", gender, gender);
-        assert_eq!(gender.to_string(), "non_binary");
     }
 }

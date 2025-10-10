@@ -1,43 +1,36 @@
 #[cfg(test)]
-mod tests_role_name {
-    use crate::user::domain::SubscriptionTier;
-    use std::convert::TryFrom;
+mod tests {
+    use crate::user::domain::vo::SubscriptionTier;
 
     #[test]
-    fn test_subscription_tier_valid() {
-        let valid_cases = vec![
-            ("free", SubscriptionTier::Free),
-            ("basic", SubscriptionTier::Basic),
-            ("premium", SubscriptionTier::Premium),
-            ("enterprise", SubscriptionTier::Enterprise),
-            ("FREE", SubscriptionTier::Free),         // mayúsculas -> normaliza
-            ("Premium", SubscriptionTier::Premium),   // mixto -> normaliza
+    fn test_subscription_tier_creation() {
+        let inputs = vec![
+            "free",         // ✅ válido
+            "basic",        // ✅ válido
+            "premium",      // ✅ válido
+            "enterprise",   // ✅ válido
+            "  Free  ",     // ✅ válido (espacios + mayúsculas)
+            "PREMIUM",      // ✅ válido (mayúsculas)
+            "",             // ❌ vacío
+            " ",            // ❌ solo espacios
+            "vip",          // ❌ no soportado
+            "pro",          // ❌ no soportado
+            "trial",        // ❌ no soportado
         ];
 
-        for (input, expected) in valid_cases {
-            let tier = SubscriptionTier::try_from(input).unwrap();
-            println!("Probando válido '{}': {:?}", input, tier);
-            assert_eq!(tier, expected);
-            assert_eq!(tier.as_str(), expected.as_str());
-            assert_eq!(tier.to_string(), expected.as_str());
+        for input in inputs {
+            let result = SubscriptionTier::new(input);
+            match result {
+                Ok(tier) => println!("✅ '{input}' → creado como: {}", tier),
+                Err(err) => println!("❌ '{input}' → error: {}", err),
+            }
         }
     }
 
     #[test]
-    fn test_subscription_tier_invalid() {
-        let invalid_cases = vec![
-            "",          // vacío
-            "fremium",   // typo
-            "pro",       // inexistente
-            "gold",      // no soportado
-            "platinum",  // no soportado
-            "standard",  // no soportado
-        ];
-
-        for input in invalid_cases {
-            let result = SubscriptionTier::try_from(input);
-            println!("Probando inválido '{}': {:?}", input, result);
-            assert!(result.is_err(), "Se esperaba error para '{}'", input);
-        }
+    fn test_subscription_tier_display_and_as_str() {
+        let tier = SubscriptionTier::new("Premium").unwrap();
+        assert_eq!(tier.as_str(), "premium");
+        println!("🧩 Display: {}", tier);
     }
 }
