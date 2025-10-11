@@ -18,6 +18,7 @@ pub enum CategoryError {
     SubscriptionTier,
     SubscriptionStatus,
     ConsentType,
+    OccurredAt,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
