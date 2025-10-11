@@ -1,4 +1,4 @@
-use crate::user::domain::events::{
+use super::{
     UserActivated,
     UserDeleted,
     UserEmailUpdated,
