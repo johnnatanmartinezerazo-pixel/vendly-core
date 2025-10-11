@@ -28,6 +28,9 @@ impl TryFrom<&str> for UserId {
     type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if value.trim().is_empty() {
+            return Err((CategoryError::Id, TypeError::Empty).into());
+        }
         match Uuid::parse_str(value) {
             Ok(uuid) => Ok(UserId(uuid)),
             Err(_) => Err((CategoryError::Id, TypeError::Format { format: "uuid".into() }).into()),

@@ -28,9 +28,12 @@ impl TryFrom<&str> for OccurredAt {
     type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if value.trim().is_empty() {
+            return Err((CategoryError::OccurredAt, TypeError::Empty).into());
+        }
         match value.parse::<DateTime<Utc>>() {
             Ok(dt) => Ok(OccurredAt(dt)),
-            Err(_) => Err((CategoryError::ConsentType, TypeError::Format { format: "datetime-utc".into() }).into()),
+            Err(_) => Err((CategoryError::OccurredAt, TypeError::Format { format: "datetime-utc".into() }).into()),
         }
     }
 }
