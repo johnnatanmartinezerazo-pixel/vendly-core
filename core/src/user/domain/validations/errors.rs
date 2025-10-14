@@ -9,6 +9,8 @@ pub enum CategoryError {
     Username,
     Email,
     Phone,
+    PhoneNumber,
+    PhoneCountryCode,
     Status,
     Role,
     Locale,

@@ -3,67 +3,66 @@ use std::convert::TryFrom;
 use regex::Regex;
 
 use crate::user::domain::validations::{
-    UserDomainError,
     CategoryError,
     TypeError,
-    PHONE_NUMBER_REGEX,
+    UserDomainError
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Phone {
-    pub country_code: String,
-    pub number: String,
+    pub country_code: usize,
+    pub number: usize,
 }
 
 impl Phone {
     pub fn new(country_code: &str, number: &str) -> Result<Self, UserDomainError> {
-        let country_code_trimmed = country_code.trim();
-        let number_trimmed = number.trim();
+        let country_code_trimmed: String = country_code.chars().filter(|c| !c.is_whitespace()).collect();
 
-        if country_code_trimmed.is_empty() || number_trimmed.is_empty(){
-            return Err((CategoryError::Phone, TypeError::Empty).into());
+        if country_code_trimmed.is_empty(){
+            return Err((CategoryError::PhoneCountryCode, TypeError::Empty).into());
         }
 
-        // --- INICIO DE CAMBIOS ---
+        if !country_code_trimmed.chars().all(char::is_numeric) {
+            return Err((CategoryError::PhoneCountryCode, TypeError::Format { format: "COUNTRY_CODE(only digits)".into() }).into());
+        }
 
-        // 1. Manejar el '+' opcional, obteniendo solo la parte numérica.
-        let numeric_cc = country_code_trimmed.strip_prefix('+').unwrap_or(country_code_trimmed);
-
-        // 2. Validar la longitud de la parte numérica.
+        let contry_code_len = country_code_trimmed.len();
         const MIN_PHONE_CONTRY_LEN: usize = 1;
         const MAX_PHONE_CONTRY_LEN: usize = 3;
-        if numeric_cc.len() < MIN_PHONE_CONTRY_LEN {
-            return Err((CategoryError::Phone, TypeError::TooShort { short: MIN_PHONE_CONTRY_LEN as u16 }).into());
-        }
-        if numeric_cc.len() > MAX_PHONE_CONTRY_LEN {
-            return Err((CategoryError::Phone, TypeError::TooLong { long: MAX_PHONE_CONTRY_LEN as u32 }).into());
+        
+        if contry_code_len < MIN_PHONE_CONTRY_LEN {
+            return Err((CategoryError::PhoneCountryCode, TypeError::TooShort { short: MIN_PHONE_CONTRY_LEN as u16 }).into());
         }
 
-        // 3. Validar que la parte numérica solo contenga dígitos.
-        if !numeric_cc.chars().all(char::is_numeric) {
-            return Err((CategoryError::Phone, TypeError::Format { format: "COUNTRY_CODE(only digits)".into() }).into());
+        if contry_code_len > MAX_PHONE_CONTRY_LEN {
+            return Err((CategoryError::PhoneCountryCode, TypeError::TooLong { long: MAX_PHONE_CONTRY_LEN as u32 }).into());
         }
 
-        // --- FIN DE LA NUEVA LÓGICA ---
+        let number_trimmed: String = number.chars().filter(|c| !c.is_whitespace()).collect();
 
-        let number_cleaned: String = number_trimmed.chars().filter(|c| !c.is_whitespace()).collect();
-        let number_len = number_cleaned.len();
+        if number_trimmed.is_empty(){
+            return Err((CategoryError::PhoneNumber, TypeError::Empty).into());
+        }
+
+        if !number_trimmed.chars().all(char::is_numeric) {
+            return Err((CategoryError::PhoneNumber, TypeError::Format { format: "NUMBER(only digits)".into() }).into());
+        }
+    
+        let number_len = number_trimmed.len();
         const MIN_PHONE_NUMBER_LEN: usize = 6;
         const MAX_PHONE_NUMBER_LEN: usize = 14;
 
         if number_len < MIN_PHONE_NUMBER_LEN {
-            return Err((CategoryError::Phone, TypeError::TooShort { short: MIN_PHONE_NUMBER_LEN as u16 }).into());
+            return Err((CategoryError::PhoneNumber, TypeError::TooShort { short: MIN_PHONE_NUMBER_LEN as u16 }).into());
         }
+
         if number_len > MAX_PHONE_NUMBER_LEN {
-            return Err((CategoryError::Phone, TypeError::TooLong { long: MAX_PHONE_NUMBER_LEN as u32 }).into());
-        }
-        if !PHONE_NUMBER_REGEX.regex.is_match(&number_cleaned) {
-            return Err((CategoryError::Phone, TypeError::Format { format: PHONE_NUMBER_REGEX.name.into() }).into());
+            return Err((CategoryError::PhoneNumber, TypeError::TooLong { long: MAX_PHONE_NUMBER_LEN as u32 }).into());
         }
 
         Ok(Self {
-            country_code: format!("+{}", numeric_cc),
-            number: number_cleaned,
+            country_code: country_code_trimmed.parse().unwrap(),
+            number: number_trimmed.parse().unwrap(),
         })
     }
 
@@ -83,11 +82,11 @@ impl Phone {
         format!("{}{}", self.country_code, self.number)
     }
 
-    pub fn country_code(&self) -> &str {
+    pub fn country_code(&self) -> &usize {
         &self.country_code
     }
 
-    pub fn number(&self) -> &str {
+    pub fn number(&self) -> &usize {
         &self.number
     }
 }
