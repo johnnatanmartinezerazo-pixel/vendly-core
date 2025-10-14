@@ -61,21 +61,18 @@ impl Phone {
             return Err((CategoryError::Phone, TypeError::Format { format: PHONE_NUMBER_REGEX.name.into() }).into());
         }
 
-        // 4. Guardar la versión normalizada del código de país (siempre con '+').
         Ok(Self {
             country_code: format!("+{}", numeric_cc),
             number: number_cleaned,
         })
     }
 
-    // El resto del archivo no necesita cambios, ya que `from_full` llama a `new`.
     pub fn from_full(value: &str) -> Result<Self, UserDomainError> {
         let cleaned: String = value.trim().chars().filter(|c| !c.is_whitespace()).collect();
         // Esta Regex es un poco más flexible para códigos de país.
         let regex = Regex::new(r"^(?P<cc>\+\d{1,3})(?P<num>\d{6,14})$").unwrap();
 
         if let Some(caps) = regex.captures(&cleaned) {
-            // Se reutiliza la lógica de `new` que ya corregimos.
             return Phone::new(&caps["cc"], &caps["num"]);
         }
 
