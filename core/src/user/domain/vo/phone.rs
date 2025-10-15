@@ -1,6 +1,4 @@
 use std::fmt;
-use std::convert::TryFrom;
-use regex::Regex;
 
 use crate::user::domain::validations::{
     CategoryError,
@@ -23,13 +21,13 @@ impl Phone {
         }
 
         if !country_code_trimmed.chars().all(char::is_numeric) {
-            return Err((CategoryError::PhoneCountryCode, TypeError::Format { format: "COUNTRY_CODE(only digits)".into() }).into());
+            return Err((CategoryError::PhoneCountryCode, TypeError::Format { format: "ONLY_DIGITS".into() }).into());
         }
 
         let contry_code_len = country_code_trimmed.len();
         const MIN_PHONE_CONTRY_LEN: usize = 1;
         const MAX_PHONE_CONTRY_LEN: usize = 3;
-        
+
         if contry_code_len < MIN_PHONE_CONTRY_LEN {
             return Err((CategoryError::PhoneCountryCode, TypeError::TooShort { short: MIN_PHONE_CONTRY_LEN as u16 }).into());
         }
@@ -45,9 +43,9 @@ impl Phone {
         }
 
         if !number_trimmed.chars().all(char::is_numeric) {
-            return Err((CategoryError::PhoneNumber, TypeError::Format { format: "NUMBER(only digits)".into() }).into());
+            return Err((CategoryError::PhoneNumber, TypeError::Format { format: "ONLY_DIGITS".into() }).into());
         }
-    
+
         let number_len = number_trimmed.len();
         const MIN_PHONE_NUMBER_LEN: usize = 6;
         const MAX_PHONE_NUMBER_LEN: usize = 14;
@@ -66,20 +64,8 @@ impl Phone {
         })
     }
 
-    pub fn from_full(value: &str) -> Result<Self, UserDomainError> {
-        let cleaned: String = value.trim().chars().filter(|c| !c.is_whitespace()).collect();
-        // Esta Regex es un poco más flexible para códigos de país.
-        let regex = Regex::new(r"^(?P<cc>\+\d{1,3})(?P<num>\d{6,14})$").unwrap();
-
-        if let Some(caps) = regex.captures(&cleaned) {
-            return Phone::new(&caps["cc"], &caps["num"]);
-        }
-
-        Err((CategoryError::Phone, TypeError::Format { format: "FULL_PHONE(+CCXXXXXXXXX)".into() }).into())
-    }
-
     pub fn as_full(&self) -> String {
-        format!("{}{}", self.country_code, self.number)
+        format!("{} {}", self.country_code, self.number)
     }
 
     pub fn country_code(&self) -> &usize {
@@ -93,15 +79,6 @@ impl Phone {
 
 impl fmt::Display for Phone {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // CAMBIO: Se añaden paréntesis al rededor del código de país.
-        write!(f, "({}) {}", self.country_code, self.number)
-    }
-}
-
-impl TryFrom<&str> for Phone {
-    type Error = UserDomainError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        Phone::from_full(value)
+        write!(f, "{} {}", self.country_code, self.number)
     }
 }
