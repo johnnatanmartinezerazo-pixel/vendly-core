@@ -1,56 +1,56 @@
-use std::fmt;
+use icu_locid::Locale as IcuLocale;
 use std::convert::TryFrom;
+use std::str::FromStr;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::user::domain::validations::{
     UserDomainError,
     CategoryError,
     TypeError,
-    LOCALE_REGEX,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Locale(String);
+pub struct Locale(IcuLocale);
 
 impl Locale {
-    pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        let trimmed = value.trim().to_ascii_lowercase();
+    pub const DEFAULT: &'static str = "es-ES";
+
+    pub(crate) fn new(value: &str) -> Result<Self, UserDomainError> {
+        let trimmed = value.trim();
 
         if trimmed.is_empty() {
             return Err((CategoryError::Locale, TypeError::Empty).into());
         }
 
-        let len = trimmed.len();
-        const MIN_LOCALE_LEN: usize = 2;
-        const MAX_LOCALE_LEN: usize = 5;
-
-        if len < MIN_LOCALE_LEN {
-            return Err((CategoryError::Locale, TypeError::TooShort { short: MIN_LOCALE_LEN as u16 }).into());
+        match IcuLocale::from_str(trimmed) {
+            Ok(locale) => Ok(Self(locale)),
+            Err(_) => Err((CategoryError::Locale, TypeError::Format { format: "bcp47".into() }).into()),
         }
-
-        if len > MAX_LOCALE_LEN {
-            return Err((CategoryError::Locale, TypeError::TooLong { long: MAX_LOCALE_LEN as u32 }).into());
-        }
-
-        if !LOCALE_REGEX.regex.is_match(&trimmed) {
-            return Err((CategoryError::Locale, TypeError::Format { format: LOCALE_REGEX.name.into() }).into());
-        }
-
-        Ok(Self(trimmed))
     }
 
-    pub fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> String {
+        self.0.to_string()
+    }
+
+    pub fn language(&self) -> &str {
+        self.0.id.language.as_str()
+    }
+
+    pub fn region(&self) -> Option<&str> {
+        self.0.id.region.as_ref().map(|r| r.as_str())
+    }
+
+    pub fn script(&self) -> Option<&str> {
+        self.0.id.script.as_ref().map(|s| s.as_str())
+    }
+
+    pub fn as_icu(&self) -> &IcuLocale {
         &self.0
     }
 }
 
-impl AsRef<str> for Locale {
-    fn as_ref(&self) -> &str {
-        &self.0
-    }
-}
-
-impl fmt::Display for Locale {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Locale {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.0)
     }
 }
@@ -59,12 +59,20 @@ impl TryFrom<&str> for Locale {
     type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        Locale::new(value)
+        Self::new(value)
+    }
+}
+
+impl FromStr for Locale {
+    type Err = UserDomainError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from(s)
     }
 }
 
 impl Default for Locale {
     fn default() -> Self {
-        Locale("es-ES".to_string())
+        Self(IcuLocale::from_str(Self::DEFAULT).unwrap())
     }
 }

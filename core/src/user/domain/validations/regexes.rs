@@ -13,11 +13,6 @@ pub static EMAIL_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRu
     ).unwrap(),
 });
 
-pub static LOCALE_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
-    name: "LOCALE_REGEX",
-    regex: Regex::new(r"^[a-z]{2,3}(-[A-Z]{2})?$").unwrap()
-});
-
 pub static ROLE_NAME_REGEX: LazyLock<ValidationRule> = LazyLock::new(|| ValidationRule {
     name: "ROLE_NAME_REGEX",
     regex: Regex::new(r"^[a-z][a-z0-9_-]{2,49}$").unwrap()

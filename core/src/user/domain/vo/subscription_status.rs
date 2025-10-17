@@ -1,5 +1,6 @@
-use std::fmt;
 use std::convert::TryFrom;
+use std::str::FromStr;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::user::domain::validations::{
     UserDomainError,
@@ -17,18 +18,28 @@ pub enum SubscriptionStatus {
 }
 
 impl SubscriptionStatus {
-    pub fn new(value: &str) -> Result<Self, UserDomainError> {
+    pub const VALUES: [&'static str; 5] = [
+        "active",
+        "inactive",
+        "pending",
+        "canceled",
+        "expired",
+    ];
+
+    pub(crate) fn new(value: &str) -> Result<Self, UserDomainError> {
         let trimmed = value.trim();
 
         if trimmed.is_empty() {
             return Err((CategoryError::SubscriptionStatus, TypeError::Empty).into());
         }
 
-        match trimmed.to_ascii_lowercase().as_str() {
+        let lowered = trimmed.to_ascii_lowercase();
+
+        match lowered.as_str() {
             "active" => Ok(SubscriptionStatus::Active),
             "inactive" => Ok(SubscriptionStatus::Inactive),
             "pending" => Ok(SubscriptionStatus::Pending),
-            "canceled" | "cancelled" => Ok(SubscriptionStatus::Canceled),
+            "canceled" => Ok(SubscriptionStatus::Canceled),
             "expired" => Ok(SubscriptionStatus::Expired),
             _ => Err((CategoryError::SubscriptionStatus, TypeError::NotSupported).into()),
         }
@@ -45,8 +56,8 @@ impl SubscriptionStatus {
     }
 }
 
-impl fmt::Display for SubscriptionStatus {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for SubscriptionStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.as_str())
     }
 }
@@ -55,6 +66,14 @@ impl TryFrom<&str> for SubscriptionStatus {
     type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
+        SubscriptionStatus::new(value)
+    }
+}
+
+impl FromStr for SubscriptionStatus {
+    type Err = UserDomainError;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         SubscriptionStatus::new(value)
     }
 }

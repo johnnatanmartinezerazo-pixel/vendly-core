@@ -1,5 +1,7 @@
 use uuid::Uuid;
 use std::convert::TryFrom;
+use std::str::FromStr;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::user::domain::validations::{
     UserDomainError,
@@ -11,16 +13,27 @@ use crate::user::domain::validations::{
 pub struct UserId(Uuid);
 
 impl UserId {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self(Uuid::new_v4())
     }
 
-    pub fn from_uuid(uuid: Uuid) -> Self {
+    pub(crate) fn from_uuid(uuid: Uuid) -> Self {
         Self(uuid)
     }
 
     pub fn as_uuid(&self) -> Uuid {
         self.0
+    }
+
+    pub fn as_string(&self) -> String {
+        self.0.to_string()
+    }
+}
+
+
+impl Display for UserId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(f, "{}", self.0)
     }
 }
 
@@ -35,5 +48,12 @@ impl TryFrom<&str> for UserId {
             Ok(uuid) => Ok(UserId(uuid)),
             Err(_) => Err((CategoryError::Id, TypeError::Format { format: "uuid".into() }).into()),
         }
+    }
+}
+
+impl FromStr for UserId {
+    type Err = UserDomainError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from(s)
     }
 }

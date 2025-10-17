@@ -1,5 +1,6 @@
-use std::fmt;
 use std::convert::TryFrom;
+use std::str::FromStr;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::user::domain::validations::{
     UserDomainError,
@@ -12,14 +13,16 @@ use crate::user::domain::validations::{
 pub struct Email(String);
 
 impl Email {
-    pub fn new(value: &str) -> Result<Self, UserDomainError> {
-        let trimmed = value.trim().to_ascii_lowercase();
+    pub(crate) fn new(value: &str) -> Result<Self, UserDomainError> {
+        let trimmed = value.trim();
 
         if trimmed.is_empty() {
             return Err((CategoryError::Email, TypeError::Empty).into());
         }
 
-        let len = trimmed.len();
+        let lowered = trimmed.to_ascii_lowercase();
+
+        let len = lowered.len();
         const MIN_EMAIL_LEN: usize = 6;
         const MAX_EMAIL_LEN: usize = 254;
 
@@ -31,21 +34,20 @@ impl Email {
             return Err((CategoryError::Email, TypeError::TooLong { long: MAX_EMAIL_LEN as u32 }).into());
         }
 
-        if !EMAIL_REGEX.regex.is_match(&trimmed) {
+        if !EMAIL_REGEX.regex.is_match(&lowered) {
             return Err((CategoryError::Email, TypeError::Format { format: EMAIL_REGEX.name.into() }).into());
         }
 
-        Ok(Self(trimmed))
+        Ok(Self(lowered))
     }
-}
-impl AsRef<str> for Email {
-    fn as_ref(&self) -> &str {
+
+    pub fn as_str(&self) -> &str {
         &self.0
     }
 }
 
-impl fmt::Display for Email {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Email {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.0)
     }
 }
@@ -54,6 +56,14 @@ impl TryFrom<&str> for Email {
     type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
+        Email::new(value)
+    }
+}
+
+impl FromStr for Email {
+    type Err = UserDomainError;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         Email::new(value)
     }
 }

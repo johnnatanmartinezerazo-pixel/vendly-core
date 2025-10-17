@@ -1,5 +1,6 @@
-use std::fmt;
 use std::convert::TryFrom;
+use std::str::FromStr;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::user::domain::validations::{
     UserDomainError,
@@ -15,14 +16,18 @@ pub enum AuthType {
 }
 
 impl AuthType {
-    pub fn new(value: &str) -> Result<Self, UserDomainError> {
+    pub const VALUES: [&'static str; 3] = [ "password", "oidc", "saml"];
+
+    pub(crate) fn new(value: &str) -> Result<Self, UserDomainError> {
         let trimmed = value.trim();
 
         if trimmed.is_empty() {
             return Err((CategoryError::AuthType, TypeError::Empty).into());
         }
 
-        match trimmed.to_ascii_lowercase().as_str() {
+        let lowered = trimmed.to_ascii_lowercase();
+
+        match lowered.as_str() {
             "password" => Ok(AuthType::Password),
             "oidc" => Ok(AuthType::Oidc),
             "saml" => Ok(AuthType::Saml),
@@ -39,8 +44,8 @@ impl AuthType {
     }
 }
 
-impl fmt::Display for AuthType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for AuthType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.as_str())
     }
 }
@@ -49,6 +54,14 @@ impl TryFrom<&str> for AuthType {
     type Error = UserDomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
+        AuthType::new(value)
+    }
+}
+
+impl FromStr for AuthType {
+    type Err = UserDomainError;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
         AuthType::new(value)
     }
 }

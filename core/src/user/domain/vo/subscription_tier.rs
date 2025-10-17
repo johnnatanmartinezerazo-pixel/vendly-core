@@ -1,5 +1,6 @@
-use std::fmt;
 use std::convert::TryFrom;
+use std::str::FromStr;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::user::domain::validations::{
     UserDomainError,
@@ -16,14 +17,23 @@ pub enum SubscriptionTier {
 }
 
 impl SubscriptionTier {
-    pub fn new(value: &str) -> Result<Self, UserDomainError> {
+    pub const VALUES: [&'static str; 4] = [
+        "free",
+        "basic",
+        "premium",
+        "enterprise",
+    ];
+
+    pub(crate) fn new(value: &str) -> Result<Self, UserDomainError> {
         let trimmed = value.trim();
 
         if trimmed.is_empty() {
             return Err((CategoryError::SubscriptionTier, TypeError::Empty).into());
         }
 
-        match trimmed.to_ascii_lowercase().as_str() {
+        let lowered = trimmed.to_ascii_lowercase();
+
+        match lowered.as_str() {
             "free" => Ok(SubscriptionTier::Free),
             "basic" => Ok(SubscriptionTier::Basic),
             "premium" => Ok(SubscriptionTier::Premium),
@@ -42,8 +52,8 @@ impl SubscriptionTier {
     }
 }
 
-impl fmt::Display for SubscriptionTier {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for SubscriptionTier {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.as_str())
     }
 }
@@ -53,5 +63,19 @@ impl TryFrom<&str> for SubscriptionTier {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         SubscriptionTier::new(value)
+    }
+}
+
+impl FromStr for SubscriptionTier {
+    type Err = UserDomainError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from(s)
+    }
+}
+
+impl Default for SubscriptionTier {
+    fn default() -> Self {
+        SubscriptionTier::Free
     }
 }

@@ -1,5 +1,6 @@
-use std::fmt;
 use std::convert::TryFrom;
+use std::str::FromStr;
+use std::fmt::{Display, Formatter, Result as FmtResult };
 
 use crate::user::domain::validations::{
     UserDomainError,
@@ -16,14 +17,20 @@ pub enum UserStatus {
 }
 
 impl UserStatus {
-    pub fn new(value: &str) -> Result<Self, UserDomainError> {
+    pub fn variants() -> &'static [&'static str] {
+        &["pending", "active", "suspended", "deleted"]
+    }
+
+    pub(crate) fn new(value: &str) -> Result<Self, UserDomainError> {
         let trimmed = value.trim();
 
         if trimmed.is_empty() {
             return Err((CategoryError::Status, TypeError::Empty).into());
         }
 
-        match trimmed.to_ascii_lowercase().as_str() {
+        let lowered = trimmed.to_ascii_lowercase();
+
+        match lowered.as_str() {
             "pending" => Ok(UserStatus::Pending),
             "active" => Ok(UserStatus::Active),
             "suspended" => Ok(UserStatus::Suspended),
@@ -40,10 +47,15 @@ impl UserStatus {
             UserStatus::Deleted => "deleted",
         }
     }
+
+    pub fn is_active(&self) -> bool { matches!(self, UserStatus::Active) }
+    pub fn is_pending(&self) -> bool { matches!(self, UserStatus::Pending) }
+    pub fn is_suspended(&self) -> bool { matches!(self, UserStatus::Suspended) }
+    pub fn is_deleted(&self) -> bool { matches!(self, UserStatus::Deleted) }
 }
 
-impl fmt::Display for UserStatus {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for UserStatus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.as_str())
     }
 }
@@ -53,5 +65,13 @@ impl TryFrom<&str> for UserStatus {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         UserStatus::new(value)
+    }
+}
+
+impl FromStr for UserStatus {
+    type Err = UserDomainError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from(s)
     }
 }

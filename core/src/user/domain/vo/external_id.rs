@@ -1,5 +1,6 @@
-use std::fmt;
 use std::convert::TryFrom;
+use std::str::FromStr;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::user::domain::validations::{
     UserDomainError,
@@ -11,7 +12,7 @@ use crate::user::domain::validations::{
 pub struct ExternalId(String);
 
 impl ExternalId {
-    pub fn new(value: &str) -> Result<Self, UserDomainError> {
+    pub(crate) fn new(value: &str) -> Result<Self, UserDomainError> {
         let trimmed = value.trim();
 
         if trimmed.is_empty() {
@@ -38,14 +39,8 @@ impl ExternalId {
     }
 }
 
-impl AsRef<str> for ExternalId {
-    fn as_ref(&self) -> &str {
-        &self.0
-    }
-}
-
-impl fmt::Display for ExternalId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for ExternalId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.0)
     }
 }
@@ -55,5 +50,13 @@ impl TryFrom<&str> for ExternalId {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         ExternalId::new(value)
+    }
+}
+
+impl FromStr for ExternalId {
+    type Err = UserDomainError;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Self::try_from(value)
     }
 }

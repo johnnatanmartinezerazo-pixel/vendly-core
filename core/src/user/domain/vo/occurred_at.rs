@@ -1,5 +1,7 @@
 use chrono::{DateTime, Utc};
 use std::convert::TryFrom;
+use std::str::FromStr;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::user::domain::validations::{
     UserDomainError,
@@ -19,8 +21,14 @@ impl OccurredAt {
         Self(dt)
     }
 
-    pub fn value(&self) -> DateTime<Utc> {
-        self.0
+    pub fn value(&self) -> &DateTime<Utc> {
+        &self.0
+    }
+}
+
+impl Display for OccurredAt {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(f, "{}", self.0.to_rfc3339())
     }
 }
 
@@ -35,5 +43,12 @@ impl TryFrom<&str> for OccurredAt {
             Ok(dt) => Ok(OccurredAt(dt)),
             Err(_) => Err((CategoryError::OccurredAt, TypeError::Format { format: "datetime-utc".into() }).into()),
         }
+    }
+}
+
+impl FromStr for OccurredAt {
+    type Err = UserDomainError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from(s)
     }
 }
